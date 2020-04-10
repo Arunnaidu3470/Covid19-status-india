@@ -119,7 +119,7 @@ class HomeInfoCards extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    '(updated ${_updatedAgo()})',
+                    '(updated ${_updatedAgo(lastUpdatedOn)})',
                     style: Theme.of(context).textTheme.subtitle1.copyWith(
                         color: Colors.white38,
                         fontStyle: FontStyle.italic,
@@ -134,8 +134,8 @@ class HomeInfoCards extends StatelessWidget {
     );
   }
 
-  String _updatedAgo() {
-    String str = '09/04/2020 13:03:08';
+  String _updatedAgo(String str) {
+    if (str == null) return 'recently';
     String day = str.substring(0, 2);
     String month = str.substring(3, 5);
     String year = str.substring(6, 10);

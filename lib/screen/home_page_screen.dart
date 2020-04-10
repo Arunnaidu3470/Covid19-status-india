@@ -43,6 +43,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 deltaRecovered:
                     snapshot.casesStateWise[0].deltaRecovered.toString(),
                 deltaDeaths: snapshot.casesStateWise[0].deltaDeaths.toString(),
+                lastUpdatedOn:
+                    snapshot.casesStateWise[0].lastUpdatedTime.toString(),
               );
             }),
           ),
