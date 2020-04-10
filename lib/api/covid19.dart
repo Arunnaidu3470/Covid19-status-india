@@ -5,6 +5,8 @@ import 'dart:convert';
 
 part 'collection/series.dart';
 part 'models/time_series_model.dart';
+part 'collection/state_district.dart';
+part 'models/state_district_model.dart';
 
 class Covid19Api {
   final String _scheme = 'https://';
@@ -12,22 +14,24 @@ class Covid19Api {
   // String _version = '';
 
   SeriesData _seriesData;
+  StateDistrictData _stateDistrict;
 
   SeriesData get seriesData => _seriesData;
+  StateDistrictData get stateDistrict => _stateDistrict;
 
   Covid19Api() {
     _seriesData = SeriesData(this);
+    _stateDistrict = StateDistrictData(this);
   }
 
-  Future<Map> _query(String path) async {
-    Map data = {};
+  Future<dynamic> _query(String path) async {
+    dynamic data = {};
     String url = _scheme + _hostUrl + path;
     print(url);
     http.Response response;
     try {
       response = await http.get(url);
       data = jsonDecode(response.body);
-      print(response);
     } catch (e) {
       print(e);
     }
