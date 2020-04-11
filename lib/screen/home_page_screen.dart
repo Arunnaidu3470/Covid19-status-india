@@ -59,7 +59,23 @@ class _MyHomePageState extends State<MyHomePage>
                       expandedHeight: 100,
                       stretch: true,
                       flexibleSpace: FlexibleSpaceBar(
-                        title: Text(widget.title),
+                        title: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            SizedBox(
+                              height: 50,
+                              width: 50,
+                              child: FlareActor(
+                                'assets/flare/corona_pink_logo.flr',
+                                shouldClip: true,
+                                fit: BoxFit.cover,
+                                animation: 'move',
+                              ),
+                            ),
+                            Text(widget.title),
+                          ],
+                        ),
                       ),
                     ),
                     SliverToBoxAdapter(
