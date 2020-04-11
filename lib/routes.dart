@@ -21,6 +21,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
           builder: (cxt) => StateDetailsScreen(
                 model: data[0],
                 name: data[1],
+                index: data[2],
               ));
     default:
       return MaterialPageRoute(builder: (cxt) => MyHomePage());

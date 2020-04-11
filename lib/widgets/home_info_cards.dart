@@ -80,7 +80,7 @@ class HomeInfoCards extends StatelessWidget {
                                 .primaryTextTheme
                                 .subtitle2
                                 .copyWith(
-                                  color: Colors.red,
+                                  color: Colors.redAccent,
                                 ),
                           ),
                         ],
@@ -101,7 +101,7 @@ class HomeInfoCards extends StatelessWidget {
                             style: Theme.of(context)
                                 .primaryTextTheme
                                 .headline3
-                                .copyWith(color: Colors.greenAccent),
+                                .copyWith(color: Colors.green),
                           ),
                           Text(
                             '[ + ${deltaRecovered ?? '0'} ]',
@@ -138,7 +138,7 @@ class HomeInfoCards extends StatelessWidget {
                             style: Theme.of(context)
                                 .primaryTextTheme
                                 .headline3
-                                .copyWith(color: Colors.blueAccent),
+                                .copyWith(color: Colors.blue),
                           ),
                         ],
                       ),
@@ -166,7 +166,7 @@ class HomeInfoCards extends StatelessWidget {
                                 .primaryTextTheme
                                 .subtitle2
                                 .copyWith(
-                                  color: Colors.white30,
+                                  color: Colors.white60,
                                 ),
                           ),
                         ],

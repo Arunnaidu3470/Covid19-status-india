@@ -26,6 +26,12 @@ class _MyHomePageState extends State<MyHomePage>
   String dropdownValue = 'Confirmed';
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         extendBodyBehindAppBar: true,
@@ -61,27 +67,33 @@ class _MyHomePageState extends State<MyHomePage>
                           builder: (cxt, snapshot, child) {
                         if (snapshot == null) return Container();
                         return Container(
-                          child: HomeInfoCards(
-                            context: cxt,
-                            activeCases:
-                                snapshot.casesStateWise[0].active.toString(),
-                            totalConfirmed:
-                                snapshot.casesStateWise[0].confirmed.toString(),
-                            totalRecovered:
-                                snapshot.casesStateWise[0].recovered.toString(),
-                            deltaConfirmed: snapshot
-                                .casesStateWise[0].deltaConfirmed
-                                .toString(),
-                            deltaRecovered: snapshot
-                                .casesStateWise[0].deltaRecovered
-                                .toString(),
-                            deltaDeaths: snapshot.casesStateWise[0].deltaDeaths
-                                .toString(),
-                            totalDeaths:
-                                snapshot.casesStateWise[0].deaths.toString(),
-                            lastUpdatedOn: snapshot
-                                .casesStateWise[0].lastUpdatedTime
-                                .toString(),
+                          child: Hero(
+                            tag: 'homeinfocard',
+                            child: HomeInfoCards(
+                              context: cxt,
+                              activeCases:
+                                  snapshot.casesStateWise[0].active.toString(),
+                              totalConfirmed: snapshot
+                                  .casesStateWise[0].confirmed
+                                  .toString(),
+                              totalRecovered: snapshot
+                                  .casesStateWise[0].recovered
+                                  .toString(),
+                              deltaConfirmed: snapshot
+                                  .casesStateWise[0].deltaConfirmed
+                                  .toString(),
+                              deltaRecovered: snapshot
+                                  .casesStateWise[0].deltaRecovered
+                                  .toString(),
+                              deltaDeaths: snapshot
+                                  .casesStateWise[0].deltaDeaths
+                                  .toString(),
+                              totalDeaths:
+                                  snapshot.casesStateWise[0].deaths.toString(),
+                              lastUpdatedOn: snapshot
+                                  .casesStateWise[0].lastUpdatedTime
+                                  .toString(),
+                            ),
                           ),
                         );
                       }),
@@ -173,8 +185,8 @@ class _MyHomePageState extends State<MyHomePage>
         if (snapshot == null)
           return SliverToBoxAdapter(child: LinearProgressIndicator());
         return LiveSliverList(
-            showItemInterval: Duration(milliseconds: 5),
-            showItemDuration: Duration(milliseconds: 100),
+            showItemInterval: Duration(milliseconds: 10),
+            showItemDuration: Duration(milliseconds: 500),
             reAnimateOnVisibility: false,
             itemCount: snapshot.casesStateWise.length,
             itemBuilder: (cxt, index, animaton) {
@@ -215,7 +227,8 @@ class _MyHomePageState extends State<MyHomePage>
                       Navigator.pushNamed(context, StateDetailsScreen.ROUTENAME,
                           arguments: [
                             null,
-                            snapshot.casesStateWise[index].state
+                            snapshot.casesStateWise[index].state,
+                            index
                           ]);
                     },
                   ),
@@ -227,60 +240,60 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  Widget _unAnimatedScrollView() {
-    return Consumer<TimeSeriesModel>(
-      builder: (context, snapshot, _) {
-        if (snapshot == null)
-          return SliverToBoxAdapter(child: LinearProgressIndicator());
-        return SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (cxt, index) {
-              if (index == 0) return Container();
-              String count;
-              switch (dropdownValue) {
-                case 'Confirmed':
-                  count =
-                      '${snapshot.casesStateWise[index].confirmed.toString()} [+${snapshot.casesStateWise[index].deltaConfirmed.toString()} ]';
-                  break;
-                case 'Active':
-                  count = '${snapshot.casesStateWise[index].active.toString()}';
-                  break;
-                case 'Recovered':
-                  count =
-                      '${snapshot.casesStateWise[index].recovered.toString()} [+${snapshot.casesStateWise[index].deltaRecovered.toString()} ]';
-                  break;
-                case 'Deceased':
-                  count =
-                      '${snapshot.casesStateWise[index].deaths.toString()} [+${snapshot.casesStateWise[index].deltaDeaths.toString()} ]';
-                  break;
-                default:
-                  count =
-                      '${snapshot.casesStateWise[index].confirmed.toString()} [+${snapshot.casesStateWise[index].deltaConfirmed.toString()} ]';
-              }
+  // Widget _unAnimatedScrollView() {
+  //   return Consumer<TimeSeriesModel>(
+  //     builder: (context, snapshot, _) {
+  //       if (snapshot == null)
+  //         return SliverToBoxAdapter(child: LinearProgressIndicator());
+  //       return SliverList(
+  //         delegate: SliverChildBuilderDelegate(
+  //           (cxt, index) {
+  //             if (index == 0) return Container();
+  //             String count;
+  //             switch (dropdownValue) {
+  //               case 'Confirmed':
+  //                 count =
+  //                     '${snapshot.casesStateWise[index].confirmed.toString()} [+${snapshot.casesStateWise[index].deltaConfirmed.toString()} ]';
+  //                 break;
+  //               case 'Active':
+  //                 count = '${snapshot.casesStateWise[index].active.toString()}';
+  //                 break;
+  //               case 'Recovered':
+  //                 count =
+  //                     '${snapshot.casesStateWise[index].recovered.toString()} [+${snapshot.casesStateWise[index].deltaRecovered.toString()} ]';
+  //                 break;
+  //               case 'Deceased':
+  //                 count =
+  //                     '${snapshot.casesStateWise[index].deaths.toString()} [+${snapshot.casesStateWise[index].deltaDeaths.toString()} ]';
+  //                 break;
+  //               default:
+  //                 count =
+  //                     '${snapshot.casesStateWise[index].confirmed.toString()} [+${snapshot.casesStateWise[index].deltaConfirmed.toString()} ]';
+  //             }
 
-              return Card(
-                margin: const EdgeInsets.only(left: 15, right: 15, bottom: 5),
-                child: ListTile(
-                  trailing: Text(count),
-                  title: Text(snapshot.casesStateWise[index].state),
-                  enabled: !(snapshot.casesStateWise[index].confirmed == 0),
-                  onTap: () {
-                    //analytics
-                    _appAnalytics.logStateWiseSelectionEvent(
-                        snapshot.casesStateWise[index].state);
-                    Navigator.pushNamed(context, StateDetailsScreen.ROUTENAME,
-                        arguments: [
-                          null,
-                          snapshot.casesStateWise[index].state
-                        ]);
-                  },
-                ),
-              );
-            },
-            childCount: snapshot.casesStateWise.length,
-          ),
-        );
-      },
-    );
-  }
+  //             return Card(
+  //               margin: const EdgeInsets.only(left: 15, right: 15, bottom: 5),
+  //               child: ListTile(
+  //                 trailing: Text(count),
+  //                 title: Text(snapshot.casesStateWise[index].state),
+  //                 enabled: !(snapshot.casesStateWise[index].confirmed == 0),
+  //                 onTap: () {
+  //                   //analytics
+  //                   _appAnalytics.logStateWiseSelectionEvent(
+  //                       snapshot.casesStateWise[index].state);
+  //                   Navigator.pushNamed(context, StateDetailsScreen.ROUTENAME,
+  //                       arguments: [
+  //                         null,
+  //                         snapshot.casesStateWise[index].state
+  //                       ]);
+  //                 },
+  //               ),
+  //             );
+  //           },
+  //           childCount: snapshot.casesStateWise.length,
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 }
