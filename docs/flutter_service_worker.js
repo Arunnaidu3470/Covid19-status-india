@@ -1,8 +1,9 @@
 'use strict';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
-  "assets/AssetManifest.json": "f2503df7c35d35ac50d55b214b5ba3d1",
+  "assets/AssetManifest.json": "a781886fba4089e76350403b817542f7",
 "assets/assets/flare/app_background.flr": "ecb41960871fb48dc154348db2d7c884",
+"assets/assets/flare/corona_pink_logo.flr": "86a06cd1b9f67bff11035bdff2101f29",
 "assets/FontManifest.json": "f7161631e25fbd47f3180eae84053a51",
 "assets/fonts/MaterialIcons-Regular.ttf": "56d3ffdef7a25659eab6a68a3fbfaf16",
 "assets/LICENSE": "79486c3631d7ddc7ea4207dffa8c0a34",
@@ -12,7 +13,7 @@ const RESOURCES = {
 "icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
 "index.html": "5dfc4b8e7505f6bcb4fb489b20b3519c",
 "/": "5dfc4b8e7505f6bcb4fb489b20b3519c",
-"main.dart.js": "673dbe92db7c97ac6e52daa13018fdb8",
+"main.dart.js": "2bab3e1ae98b6e39ce49d3e1d2c08088",
 "manifest.json": "d882f9db0b2d2a9f55d4ecc26c45df4f"
 };
 
