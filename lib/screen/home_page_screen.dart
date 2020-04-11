@@ -1,3 +1,4 @@
+import 'package:auto_animated/auto_animated.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,10 +18,13 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
   final Covid19Api api = Covid19Api();
   final AppAnalytics _appAnalytics = AppAnalytics();
+  final ScrollController _scrollController = ScrollController();
   String dropdownValue = 'Confirmed';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,6 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 )),
                 CustomScrollView(
+                  // controller: _scrollController,
                   physics: BouncingScrollPhysics(),
                   slivers: <Widget>[
                     SliverAppBar(
@@ -152,72 +157,130 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                     ),
-                    Consumer<TimeSeriesModel>(
-                      builder: (context, snapshot, _) {
-                        if (snapshot == null)
-                          return SliverToBoxAdapter(
-                              child: LinearProgressIndicator());
-                        return SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (cxt, index) {
-                              if (index == 0) return Container();
-                              String count;
-                              switch (dropdownValue) {
-                                case 'Confirmed':
-                                  count =
-                                      '${snapshot.casesStateWise[index].confirmed.toString()} [+${snapshot.casesStateWise[index].deltaConfirmed.toString()} ]';
-                                  break;
-                                case 'Active':
-                                  count =
-                                      '${snapshot.casesStateWise[index].active.toString()}';
-                                  break;
-                                case 'Recovered':
-                                  count =
-                                      '${snapshot.casesStateWise[index].recovered.toString()} [+${snapshot.casesStateWise[index].deltaRecovered.toString()} ]';
-                                  break;
-                                case 'Deceased':
-                                  count =
-                                      '${snapshot.casesStateWise[index].deaths.toString()} [+${snapshot.casesStateWise[index].deltaDeaths.toString()} ]';
-                                  break;
-                                default:
-                                  count =
-                                      '${snapshot.casesStateWise[index].confirmed.toString()} [+${snapshot.casesStateWise[index].deltaConfirmed.toString()} ]';
-                              }
-
-                              return Card(
-                                margin: const EdgeInsets.only(
-                                    left: 15, right: 15, bottom: 5),
-                                child: ListTile(
-                                  trailing: Text(count),
-                                  title: Text(
-                                      snapshot.casesStateWise[index].state),
-                                  enabled: !(snapshot
-                                          .casesStateWise[index].confirmed ==
-                                      0),
-                                  onTap: () {
-                                    //analytics
-                                    _appAnalytics.logStateWiseSelectionEvent(
-                                        snapshot.casesStateWise[index].state);
-                                    Navigator.pushNamed(
-                                        context, StateDetailsScreen.ROUTENAME,
-                                        arguments: [
-                                          null,
-                                          snapshot.casesStateWise[index].state
-                                        ]);
-                                  },
-                                ),
-                              );
-                            },
-                            childCount: snapshot.casesStateWise.length,
-                          ),
-                        );
-                      },
-                    )
+                    //statewise
+                    _stateWiseAnimatedList(),
                   ],
                 ),
               ],
             ),
           ),
         ));
+  }
+
+  Widget _stateWiseAnimatedList() {
+    return Consumer<TimeSeriesModel>(
+      builder: (context, snapshot, _) {
+        if (snapshot == null)
+          return SliverToBoxAdapter(child: LinearProgressIndicator());
+        return LiveSliverList(
+            showItemInterval: Duration(milliseconds: 5),
+            showItemDuration: Duration(milliseconds: 100),
+            reAnimateOnVisibility: false,
+            itemCount: snapshot.casesStateWise.length,
+            itemBuilder: (cxt, index, animaton) {
+              if (index == 0) return Container();
+              String count;
+              switch (dropdownValue) {
+                case 'Confirmed':
+                  count =
+                      '${snapshot.casesStateWise[index].confirmed.toString()} [+${snapshot.casesStateWise[index].deltaConfirmed.toString()} ]';
+                  break;
+                case 'Active':
+                  count = '${snapshot.casesStateWise[index].active.toString()}';
+                  break;
+                case 'Recovered':
+                  count =
+                      '${snapshot.casesStateWise[index].recovered.toString()} [+${snapshot.casesStateWise[index].deltaRecovered.toString()} ]';
+                  break;
+                case 'Deceased':
+                  count =
+                      '${snapshot.casesStateWise[index].deaths.toString()} [+${snapshot.casesStateWise[index].deltaDeaths.toString()} ]';
+                  break;
+                default:
+                  count =
+                      '${snapshot.casesStateWise[index].confirmed.toString()} [+${snapshot.casesStateWise[index].deltaConfirmed.toString()} ]';
+              }
+              return FadeTransition(
+                opacity: animaton,
+                child: Card(
+                  margin: const EdgeInsets.only(left: 15, right: 15, bottom: 5),
+                  child: ListTile(
+                    trailing: Text(count),
+                    title: Text(snapshot.casesStateWise[index].state),
+                    enabled: !(snapshot.casesStateWise[index].confirmed == 0),
+                    onTap: () {
+                      //analytics
+                      _appAnalytics.logStateWiseSelectionEvent(
+                          snapshot.casesStateWise[index].state);
+                      Navigator.pushNamed(context, StateDetailsScreen.ROUTENAME,
+                          arguments: [
+                            null,
+                            snapshot.casesStateWise[index].state
+                          ]);
+                    },
+                  ),
+                ),
+              );
+            },
+            controller: _scrollController);
+      },
+    );
+  }
+
+  Widget _unAnimatedScrollView() {
+    return Consumer<TimeSeriesModel>(
+      builder: (context, snapshot, _) {
+        if (snapshot == null)
+          return SliverToBoxAdapter(child: LinearProgressIndicator());
+        return SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (cxt, index) {
+              if (index == 0) return Container();
+              String count;
+              switch (dropdownValue) {
+                case 'Confirmed':
+                  count =
+                      '${snapshot.casesStateWise[index].confirmed.toString()} [+${snapshot.casesStateWise[index].deltaConfirmed.toString()} ]';
+                  break;
+                case 'Active':
+                  count = '${snapshot.casesStateWise[index].active.toString()}';
+                  break;
+                case 'Recovered':
+                  count =
+                      '${snapshot.casesStateWise[index].recovered.toString()} [+${snapshot.casesStateWise[index].deltaRecovered.toString()} ]';
+                  break;
+                case 'Deceased':
+                  count =
+                      '${snapshot.casesStateWise[index].deaths.toString()} [+${snapshot.casesStateWise[index].deltaDeaths.toString()} ]';
+                  break;
+                default:
+                  count =
+                      '${snapshot.casesStateWise[index].confirmed.toString()} [+${snapshot.casesStateWise[index].deltaConfirmed.toString()} ]';
+              }
+
+              return Card(
+                margin: const EdgeInsets.only(left: 15, right: 15, bottom: 5),
+                child: ListTile(
+                  trailing: Text(count),
+                  title: Text(snapshot.casesStateWise[index].state),
+                  enabled: !(snapshot.casesStateWise[index].confirmed == 0),
+                  onTap: () {
+                    //analytics
+                    _appAnalytics.logStateWiseSelectionEvent(
+                        snapshot.casesStateWise[index].state);
+                    Navigator.pushNamed(context, StateDetailsScreen.ROUTENAME,
+                        arguments: [
+                          null,
+                          snapshot.casesStateWise[index].state
+                        ]);
+                  },
+                ),
+              );
+            },
+            childCount: snapshot.casesStateWise.length,
+          ),
+        );
+      },
+    );
   }
 }

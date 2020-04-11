@@ -1,4 +1,5 @@
 import 'package:app/api/covid19.dart';
+import 'package:auto_animated/auto_animated.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,11 +14,14 @@ class StateDetailsScreen extends StatefulWidget {
 }
 
 class _StateDetailsScreenState extends State<StateDetailsScreen> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
+          controller: _scrollController,
           physics: BouncingScrollPhysics(),
           slivers: <Widget>[
             SliverAppBar(
@@ -35,18 +39,24 @@ class _StateDetailsScreenState extends State<StateDetailsScreen> {
                 );
               StateDistrictModel data =
                   StateDistrictData.getStateDataByName(widget.name, snapshot);
-              return SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                (cxt, index) {
-                  return ListTile(
-                    trailing:
-                        Text(data.districtData[index].confirmed.toString()),
-                    title: Text(data.districtData[index].district.toString()),
+              return LiveSliverList(
+                controller: _scrollController,
+                showItemInterval: Duration(milliseconds: 10),
+                showItemDuration: Duration(milliseconds: 500),
+                reAnimateOnVisibility: false,
+                itemCount: data.districtData.length,
+                itemBuilder: (cxt, index, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ListTile(
+                      trailing:
+                          Text(data.districtData[index].confirmed.toString()),
+                      title: Text(data.districtData[index].district.toString()),
+                    ),
                   );
                 },
-                childCount: data.districtData.length,
-              ));
-            })
+              );
+            }),
           ],
         ),
       ),
