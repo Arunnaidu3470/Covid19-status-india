@@ -7,8 +7,10 @@ class HomeInfoCards extends StatelessWidget {
   final String totalConfirmed;
   final String deltaConfirmed;
   final String deltaRecovered;
+  final String totalDeaths;
   final String deltaDeaths;
   final String lastUpdatedOn;
+  final String totalRecovered;
 
   HomeInfoCards(
       {this.context,
@@ -16,8 +18,10 @@ class HomeInfoCards extends StatelessWidget {
       this.totalConfirmed,
       this.deltaConfirmed,
       this.deltaRecovered,
+      this.totalDeaths,
       this.deltaDeaths,
-      this.lastUpdatedOn});
+      this.lastUpdatedOn,
+      this.totalRecovered});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +29,7 @@ class HomeInfoCards extends StatelessWidget {
       margin: const EdgeInsets.only(top: 30),
       child: Center(
           child: SizedBox(
-        height: 200,
+        height: 300,
         width: MediaQuery.of(context).size.width - 30,
         child: Card(
           shape:
@@ -48,13 +52,15 @@ class HomeInfoCards extends StatelessWidget {
                         .copyWith(color: Colors.white70),
                   ),
                   Row(
+                    //Confirmed Cases
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Column(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: <Widget>[
                           Text(
-                            'Confirmed',
+                            'CONFIRMED',
                             style: Theme.of(context)
                                 .primaryTextTheme
                                 .bodyText1
@@ -65,15 +71,63 @@ class HomeInfoCards extends StatelessWidget {
                             style: Theme.of(context)
                                 .primaryTextTheme
                                 .headline3
-                                .copyWith(color: Colors.white),
+                                .copyWith(color: Colors.red),
+                          ),
+                          Text(
+                            '[ + ${deltaConfirmed ?? '0'} ]',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .primaryTextTheme
+                                .subtitle2
+                                .copyWith(
+                                  color: Colors.red,
+                                ),
                           ),
                         ],
                       ),
                       Column(
+                        //Recovered Cases
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: <Widget>[
                           Text(
-                            'Total Active',
+                            'RECOVERED',
+                            style: Theme.of(context)
+                                .primaryTextTheme
+                                .bodyText1
+                                .copyWith(color: Colors.white54),
+                          ),
+                          Text(
+                            '${totalRecovered ?? '0'}',
+                            style: Theme.of(context)
+                                .primaryTextTheme
+                                .headline3
+                                .copyWith(color: Colors.greenAccent),
+                          ),
+                          Text(
+                            '[ + ${deltaRecovered ?? '0'} ]',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .primaryTextTheme
+                                .subtitle2
+                                .copyWith(
+                                  color: Colors.greenAccent,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Row(
+                    //Confirmed Cases
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Column(
+                        //active Cases
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          Text(
+                            'ACTIVE',
                             style: Theme.of(context)
                                 .primaryTextTheme
                                 .bodyText1
@@ -84,38 +138,39 @@ class HomeInfoCards extends StatelessWidget {
                             style: Theme.of(context)
                                 .primaryTextTheme
                                 .headline3
-                                .copyWith(color: Colors.white),
+                                .copyWith(color: Colors.blueAccent),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        '+ ${deltaConfirmed ?? '0'}\nConfirmed',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context)
-                            .primaryTextTheme
-                            .subtitle2
-                            .copyWith(
-                              color: Colors.red,
-                            ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          Text(
+                            'DECEASED',
+                            style: Theme.of(context)
+                                .primaryTextTheme
+                                .bodyText1
+                                .copyWith(color: Colors.white54),
+                          ),
+                          Text(
+                            '${totalDeaths ?? '0'}',
+                            style: Theme.of(context)
+                                .primaryTextTheme
+                                .headline3
+                                .copyWith(color: Colors.white30),
+                          ),
+                          Text(
+                            '[ + ${deltaDeaths ?? '0'} ]',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .primaryTextTheme
+                                .subtitle2
+                                .copyWith(
+                                  color: Colors.white30,
+                                ),
+                          ),
+                        ],
                       ),
-                      Text('- ${deltaRecovered ?? '0'}\nrecovered',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .primaryTextTheme
-                              .subtitle2
-                              .copyWith(color: Colors.green)),
-                      Text('- ${deltaDeaths ?? '0'}\ndeaths',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .primaryTextTheme
-                              .subtitle2
-                              .copyWith(color: Colors.red))
                     ],
                   ),
                   Text(
