@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:app/auth/auth_api.dart';
 import 'package:app/screen/drawer_screen.dart';
 import 'package:app/widgets/stay_home_stay_safe_list.dart';
 import 'package:auto_animated/auto_animated.dart';
@@ -59,12 +62,10 @@ class _MyHomePageState extends State<MyHomePage>
                   physics: BouncingScrollPhysics(),
                   slivers: <Widget>[
                     SliverAppBar(
-                      backgroundColor: Colors.transparent,
-                      expandedHeight: 100,
-                      stretch: true,
-                      flexibleSpace:
-                          FlexibleSpaceBar(title: Text(widget.title)),
-                    ),
+                        backgroundColor: Colors.transparent,
+                        expandedHeight: 200,
+                        stretch: true,
+                        flexibleSpace: _flexibleSpaceBar()),
                     SliverToBoxAdapter(
                       child: Consumer<TimeSeriesModel>(
                           builder: (cxt, snapshot, child) {
@@ -166,6 +167,53 @@ class _MyHomePageState extends State<MyHomePage>
             ),
           ),
         ));
+  }
+
+  FlexibleSpaceBar _flexibleSpaceBar() {
+    return FlexibleSpaceBar(background: Center(
+      child: Consumer<FirebaseAuthApi>(
+        builder: (context, value, _) {
+          return Stack(
+            children: <Widget>[
+              Positioned.fill(
+                  child: Container(
+                      child: FadeInImage.assetNetwork(
+                placeholder: 'assets/images/c_prevention.gif',
+                image: value.user?.photoUrl,
+                fit: BoxFit.cover,
+              ))),
+              Positioned.fill(
+                  child: Container(
+                decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.transparent, Colors.black87])),
+              )),
+              Positioned.fill(
+                  child: ClipRRect(
+                child: Container(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child: Container(
+                      alignment: Alignment.centerLeft,
+                      margin: const EdgeInsets.only(left: 15),
+                      child: Text(
+                        'Hello,\n${value.user.displayName}\nStay Home and be Safe',
+                        style: Theme.of(context)
+                            .primaryTextTheme
+                            .headline4
+                            .copyWith(fontWeight: FontWeight.w300),
+                      ),
+                    ),
+                  ),
+                ),
+              )),
+            ],
+          );
+        },
+      ),
+    ));
   }
 
   SliverToBoxAdapter _title(String title) {
