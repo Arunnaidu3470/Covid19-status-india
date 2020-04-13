@@ -1,3 +1,4 @@
+import 'package:app/screen/drawer_screen.dart';
 import 'package:app/widgets/stay_home_stay_safe_list.dart';
 import 'package:auto_animated/auto_animated.dart';
 import 'package:flare_flutter/flare_actor.dart';
@@ -38,6 +39,7 @@ class _MyHomePageState extends State<MyHomePage>
   Widget build(BuildContext context) {
     return Scaffold(
         extendBodyBehindAppBar: true,
+        drawer: DrawerScreen(),
         body: Container(
           child: SafeArea(
             child: Stack(
@@ -57,29 +59,11 @@ class _MyHomePageState extends State<MyHomePage>
                   physics: BouncingScrollPhysics(),
                   slivers: <Widget>[
                     SliverAppBar(
-                      automaticallyImplyLeading: false,
                       backgroundColor: Colors.transparent,
                       expandedHeight: 100,
                       stretch: true,
-                      flexibleSpace: FlexibleSpaceBar(
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            SizedBox(
-                              height: 50,
-                              width: 50,
-                              child: FlareActor(
-                                'assets/flare/corona_pink_logo.flr',
-                                shouldClip: true,
-                                fit: BoxFit.cover,
-                                animation: 'move',
-                              ),
-                            ),
-                            Text(widget.title),
-                          ],
-                        ),
-                      ),
+                      flexibleSpace:
+                          FlexibleSpaceBar(title: Text(widget.title)),
                     ),
                     SliverToBoxAdapter(
                       child: Consumer<TimeSeriesModel>(

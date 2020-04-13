@@ -1,4 +1,5 @@
 import 'package:app/screen/home_page_screen.dart';
+import 'package:app/screen/sign_in_screen.dart';
 import 'package:app/screen/state_details_screen.dart';
 import 'package:app/screen/stay_home_stay_safe_details_screen.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,9 @@ Route<dynamic> generateRoute(RouteSettings settings) {
                 markdownBodyData: data[1],
                 assetPath: data[2],
               ));
+
+    case SignInScreen.ROOTNAME:
+      return MaterialPageRoute(builder: (cxt) => MyHomePage());
 
     default:
       return MaterialPageRoute(builder: (cxt) => MyHomePage());
