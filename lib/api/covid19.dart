@@ -7,6 +7,8 @@ part 'collection/series.dart';
 part 'models/time_series_model.dart';
 part 'collection/state_district.dart';
 part 'models/state_district_model.dart';
+part 'collection/deaths_recoveries.dart';
+part 'models/deaths_recoveries_model.dart';
 
 class Covid19Api {
   final String _scheme = 'https://';
