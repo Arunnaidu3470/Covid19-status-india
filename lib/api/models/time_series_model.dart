@@ -180,8 +180,8 @@ class CasesTested {
             int.tryParse(data[i]['testsconductedbyprivatelabs'] ?? ''),
         totalIndividualsTested:
             int.tryParse(data[i]['totalindividualstested'] ?? ''),
-        totalPositiveCases: int.tryParse(data[i]['totalpositivecases']),
-        totalSamplesTested: int.tryParse(data[i]['totalsamplestested']),
+        totalPositiveCases: int.tryParse(data[i]['totalpositivecases'] ?? '0'),
+        totalSamplesTested: int.tryParse(data[i]['totalsamplestested'] ?? '0'),
         updateTimestamp: data[i]['updatetimestamp'],
       ));
     }
