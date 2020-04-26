@@ -1,6 +1,7 @@
 import 'package:app/api/covid19.dart';
 import 'package:app/screen/sign_in_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'screen/home_page_screen.dart';
@@ -18,6 +19,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _analytics.appOpend();
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarBrightness: Brightness.light,
+    ));
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<FirebaseAuthApi>(
@@ -32,39 +37,22 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        // initialRoute: MyHomePage.ROUTENAME,
-        navigatorObservers: <NavigatorObserver>[
-          _analytics.appAnalyticsObserver
-        ],
-        onGenerateRoute: routes.generateRoute,
-        title: 'COVID19 India',
-        theme: ThemeData(
-          backgroundColor: Color.fromRGBO(18, 18, 18, 1),
-          scaffoldBackgroundColor: Colors.black,
-          brightness: Brightness.dark,
-        ),
-        home: Consumer<FirebaseAuthApi>(
-          builder: (context, value, _) {
-            switch (value.status) {
-              case Status.Uninitialized:
-                return SignInScreen();
-              case Status.Unauthenticated:
-                return SignInScreen();
-              case Status.Authenticating:
-                return Scaffold(
-                  body: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              case Status.Authenticated:
-                return MyHomePage();
-              default:
-                return SignInScreen();
-            }
-          },
-          child: Builder(builder: (context) => _gotoRoute(context)),
-        ),
-      ),
+          // initialRoute: MyHomePage.ROUTENAME,
+          navigatorObservers: <NavigatorObserver>[
+            _analytics.appAnalyticsObserver
+          ],
+          onGenerateRoute: routes.generateRoute,
+          title: 'COVID19 India',
+          theme: ThemeData(
+            backgroundColor: Color.fromRGBO(33, 43, 70, 1),
+            appBarTheme: AppBarTheme(
+                color: Color.fromRGBO(33, 43, 70, 1),
+                brightness: Brightness.dark),
+            brightness: Brightness.light,
+            primaryColor: Color.fromRGBO(33, 43, 70, 1),
+            platform: TargetPlatform.android,
+          ),
+          home: MyHomePage()),
     );
   }
 
