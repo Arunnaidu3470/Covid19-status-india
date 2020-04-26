@@ -1,5 +1,4 @@
 import 'package:app/api/covid19.dart';
-import 'package:app/screen/sign_in_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'screen/home_page_screen.dart';
 import 'routes.dart' as routes;
 import 'package:app/analytics/analytics.dart';
-import 'auth/auth_api.dart';
 
 void main() {
   runApp(MyApp());
@@ -25,8 +23,6 @@ class MyApp extends StatelessWidget {
     ));
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<FirebaseAuthApi>(
-            lazy: false, create: (context) => FirebaseAuthApi.initialize()),
         FutureProvider<TimeSeriesModel>(
           lazy: false,
           create: (cxt) => api.seriesData.allSeriesData(),
@@ -54,15 +50,5 @@ class MyApp extends StatelessWidget {
           ),
           home: MyHomePage()),
     );
-  }
-
-  Widget _gotoRoute(BuildContext context) {
-    if (Provider.of<FirebaseAuthApi>(context, listen: false).user == null) {
-      print('singinscreen');
-      return SignInScreen();
-    }
-    print(
-        Provider.of<FirebaseAuthApi>(context, listen: false).user.displayName);
-    return MyHomePage();
   }
 }
