@@ -1,15 +1,16 @@
+import 'package:app/constants/stay_home_stay_safe_constants.dart';
 import 'package:app/screen/active_screen.dart';
 import 'package:app/screen/confirmed_screen.dart';
 import 'package:app/screen/deceased_screen.dart';
 import 'package:app/screen/recovered_screen.dart';
 import 'package:app/widgets/count_card.dart';
+import 'package:app/widgets/stay_home_stay_safe_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../api/covid19.dart';
 import '../analytics/analytics.dart';
-import 'state_details_screen.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title = 'Covid19 India'}) : super(key: key);
@@ -94,6 +95,20 @@ class _MyHomePageState extends State<MyHomePage>
                         },
                       );
                     }),
+                    SliverToBoxAdapter(child: SizedBox(height: 20)),
+                    SliverToBoxAdapter(
+                        child: Container(
+                      height: 200,
+                      child: StayHomeStaySafeList(
+                        assetPaths: IMAGE_ASSET_PATHS,
+                        titles: TITLES,
+                        pageinfo: [
+                          SymptomsInfo.BODYTEXT,
+                          PreventionInfo.BODYTEXT,
+                          TreatmentInfo.BODYTEXT,
+                        ],
+                      ),
+                    )),
                     SliverToBoxAdapter(child: SizedBox(height: 20)),
                     // someother details
                   ],
