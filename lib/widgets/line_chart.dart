@@ -253,8 +253,6 @@ class _ConfirmedCasesChartState extends State<ConfirmedCasesChart> {
   }
 
   String _titlesBottom(double value, List<CasesTimeSeries> data) {
-    //7-days(week),30-days(month),all(whole data)
-    // print(data.sublist(data.length - 8)[0]);
     if (selectedValue == 2) {
       if (value < 7) {
         return data

@@ -29,7 +29,6 @@ class Covid19Api {
   Future<dynamic> _query(String path) async {
     dynamic data = {};
     String url = _scheme + _hostUrl + path;
-    print(url);
     http.Response response;
     try {
       response = await http.get(url);

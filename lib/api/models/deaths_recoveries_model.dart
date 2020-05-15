@@ -64,11 +64,8 @@ class DeathsRecoveriesModel {
     if (date == null) return null;
     if (date == "") return null;
     int day = int.parse(date.substring(0, 2));
-    print('day $day');
     int month = int.parse(date.substring(3, 5));
-    print('month $month');
     int year = int.parse(date.substring(6, 10));
-    print('year $year');
     return DateTime(year, month, day);
   }
 

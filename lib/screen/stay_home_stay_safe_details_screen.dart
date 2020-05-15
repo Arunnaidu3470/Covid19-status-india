@@ -49,11 +49,11 @@ class _StayHomeStaySafeDetailsScreenState
       child: MarkdownBody(
           styleSheet: MarkdownStyleSheet(
               strong: Theme.of(context)
-                  .primaryTextTheme
+                  .textTheme
                   .headline6
                   .copyWith(fontWeight: FontWeight.w100),
               p: Theme.of(context)
-                  .primaryTextTheme
+                  .textTheme
                   .headline6
                   .copyWith(fontWeight: FontWeight.w300)),
           data: widget.markdownBodyData),
@@ -82,7 +82,7 @@ Older people, and people with other medical conditions (such as asthma, diabetes
 may be more vulnerable to becoming severely ill.
             ''',
                   style: Theme.of(context)
-                      .primaryTextTheme
+                      .textTheme
                       .headline6
                       .copyWith(fontWeight: FontWeight.w300))
             ],
@@ -90,7 +90,7 @@ may be more vulnerable to becoming severely ill.
           Text(
             'People may Experience\n',
             style: Theme.of(context)
-                .primaryTextTheme
+                .textTheme
                 .headline6
                 .copyWith(fontWeight: FontWeight.w500),
           ),
@@ -125,9 +125,9 @@ may be more vulnerable to becoming severely ill.
             child: Text(
               ' $title',
               style: Theme.of(context)
-                  .primaryTextTheme
+                  .textTheme
                   .headline6
-                  .copyWith(fontWeight: FontWeight.w300),
+                  .copyWith(fontWeight: FontWeight.w300, color: Colors.black),
             ),
           ),
         ],

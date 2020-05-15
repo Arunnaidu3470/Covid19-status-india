@@ -1,11 +1,16 @@
+import 'package:app/constants/stay_home_stay_safe_constants.dart';
+import 'package:app/screen/active_screen.dart';
+import 'package:app/screen/confirmed_screen.dart';
+import 'package:app/screen/deceased_screen.dart';
+import 'package:app/screen/recovered_screen.dart';
 import 'package:app/widgets/count_card.dart';
+import 'package:app/widgets/stay_home_stay_safe_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../api/covid19.dart';
 import '../analytics/analytics.dart';
-import 'state_details_screen.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title = 'Covid19 India'}) : super(key: key);
@@ -33,128 +38,83 @@ class _MyHomePageState extends State<MyHomePage>
   Widget build(BuildContext context) {
     return Scaffold(
         extendBodyBehindAppBar: true,
-        body: Container(
-          child: Stack(
-            children: <Widget>[
-              Positioned(
-                  child: Container(
-                height: 300,
-                color: Color.fromRGBO(33, 43, 70, 1),
-              )),
-              CustomScrollView(
-                physics: BouncingScrollPhysics(),
-                slivers: <Widget>[
-                  SliverAppBar(
-                    backgroundColor: Colors.transparent,
-                    expandedHeight: 200,
-                    stretch: true,
-                    flexibleSpace: _flexibleSpaceBar(),
-                  ),
-                  Consumer<TimeSeriesModel>(builder: (cxt, value, _) {
-                    if (value == null)
-                      return SliverToBoxAdapter(
-                          child: Center(child: CircularProgressIndicator()));
-                    return SliverPadding(
-                      padding: const EdgeInsets.only(left: 20, right: 20),
-                      sliver: SliverGrid.count(
-                          crossAxisCount: 2,
-                          childAspectRatio: 1,
-                          mainAxisSpacing: 15,
-                          crossAxisSpacing: 18,
-                          children: <Widget>[
-                            CountCard(
-                              title: 'Confirmed',
-                              titleColor: Colors.red,
-                              directionIcon: Icons.arrow_upward,
-                              mainCount: value.casesStateWise[0].confirmed,
-                              subCount: value.casesStateWise[0].deltaConfirmed,
-                              spots: List.generate(
-                                  33,
-                                  (index) => Spot(
-                                      x: index.toDouble(),
-                                      y: value.casesTimeSeries
-                                          .sublist(
-                                            value.casesTimeSeries.length - 33,
-                                          )[index]
-                                          .dailyConfirmed
-                                          .toDouble())),
-                              colors: [
-                                ColorTween(
-                                        begin: Colors.red,
-                                        end: Colors.redAccent)
-                                    .lerp(0.2),
-                                ColorTween(
-                                        begin: Colors.red,
-                                        end: Colors.redAccent)
-                                    .lerp(0.2),
-                              ],
-                            ),
-                            CountCard(
-                              title: 'Active',
-                              titleColor: Colors.blue,
-                              mainCount: value.casesStateWise[0].active,
-                              disableChart: true,
-                            ),
-                            CountCard(
-                              title: 'Recovered',
-                              titleColor: Colors.green,
-                              directionIcon: Icons.arrow_upward,
-                              mainCount: value.casesStateWise[0].recovered,
-                              subCount: value.casesStateWise[0].deltaRecovered,
-                              spots: List.generate(33, (index) {
-                                return Spot(
-                                    x: index.toDouble(),
-                                    y: value.casesTimeSeries
-                                        .sublist(value.casesTimeSeries.length -
-                                            33)[index]
-                                        .dailyRecovered
-                                        .toDouble());
-                              }),
-                              colors: [
-                                ColorTween(
-                                        begin: Colors.green,
-                                        end: Colors.greenAccent)
-                                    .lerp(0.2),
-                                ColorTween(
-                                        begin: Colors.green,
-                                        end: Colors.greenAccent)
-                                    .lerp(0.2),
-                              ],
-                            ),
-                            CountCard(
-                              title: 'Deceased',
-                              titleColor: Colors.black45,
-                              directionIcon: Icons.arrow_upward,
-                              mainCount: value.casesStateWise[0].deaths,
-                              subCount: value.casesStateWise[0].deltaDeaths,
-                              spots: List.generate(33, (index) {
-                                return Spot(
-                                    x: index.toDouble(),
-                                    y: value.casesTimeSeries
-                                        .sublist(value.casesTimeSeries.length -
-                                            33)[index]
-                                        .dailyDeceased
-                                        .toDouble());
-                              }),
-                              colors: [
-                                ColorTween(
-                                        begin: Colors.black45,
-                                        end: Colors.black87)
-                                    .lerp(0.2),
-                                ColorTween(
-                                        begin: Colors.black45,
-                                        end: Colors.black54)
-                                    .lerp(0.2),
-                              ],
-                            ),
-                          ]),
-                    );
-                  }),
-                  SliverToBoxAdapter(child: SizedBox(height: 20)),
-                  StateList(),
-                ],
-              ),
-            ],
+        body: SafeArea(
+          top: false,
+          child: Container(
+            child: Stack(
+              children: <Widget>[
+                Positioned(
+                    child: Container(
+                  height: 300,
+                  color: Color.fromRGBO(33, 43, 70, 1),
+                )),
+                CustomScrollView(
+                  physics: BouncingScrollPhysics(),
+                  slivers: <Widget>[
+                    SliverAppBar(
+                      backgroundColor: Colors.transparent,
+                      expandedHeight: 200,
+                      stretch: true,
+                      flexibleSpace: _flexibleSpaceBar(),
+                    ),
+                    Consumer<TimeSeriesModel>(builder: (cxt, value, _) {
+                      if (value == null)
+                        return SliverToBoxAdapter(
+                            child: Center(child: CircularProgressIndicator()));
+
+                      return SliverLayoutBuilder(
+                        builder: (cxt, size) {
+                          double leftPadding;
+                          double rightPadding;
+
+                          if (size.crossAxisExtent < 650) {
+                            leftPadding = 20;
+                            rightPadding = 20;
+                          } else if (size.crossAxisExtent > 650 &&
+                              size.crossAxisExtent < 800) {
+                            leftPadding = 50;
+                            rightPadding = 150;
+                          } else if (size.crossAxisExtent > 800 &&
+                              size.crossAxisExtent < 1001) {
+                            leftPadding = 50;
+                            rightPadding = 350;
+                          } else if (size.crossAxisExtent > 1000 &&
+                              size.crossAxisExtent < 1500) {
+                            leftPadding = 50;
+                            rightPadding = 600;
+                          } else if (size.crossAxisExtent > 1500 &&
+                              size.crossAxisExtent < 1800) {
+                            leftPadding = 50;
+                            rightPadding = 900;
+                          } else {
+                            leftPadding = 50;
+                            rightPadding = 900;
+                          }
+
+                          return _cardGroup(value, leftPadding, rightPadding);
+                        },
+                      );
+                    }),
+                    SliverToBoxAdapter(child: SizedBox(height: 20)),
+                    SliverToBoxAdapter(
+                        child: Container(
+                      height: 200,
+                      child: StayHomeStaySafeList(
+                        assetPaths: IMAGE_ASSET_PATHS,
+                        titles: TITLES,
+                        pageinfo: [
+                          SymptomsInfo.BODYTEXT,
+                          PreventionInfo.BODYTEXT,
+                          TreatmentInfo.BODYTEXT,
+                        ],
+                      ),
+                    )),
+                    SliverToBoxAdapter(child: SizedBox(height: 20)),
+                    // someother details
+                  ],
+                ),
+              ],
+            ),
           ),
         ));
   }
@@ -200,108 +160,111 @@ class _MyHomePageState extends State<MyHomePage>
     ));
   }
 
-  // SliverToBoxAdapter _title(String title) {
-  //   return SliverToBoxAdapter(
-  //     child: Container(
-  //       alignment: Alignment.centerLeft,
-  //       margin: const EdgeInsets.only(left: 15, top: 50, bottom: 30),
-  //       decoration: BoxDecoration(
-  //         border: Border(
-  //             left: BorderSide(color: Theme.of(context).accentColor, width: 3)),
-  //       ),
-  //       child: Text(
-  //         ' $title',
-  //         style: Theme.of(context).textTheme.headline5,
-  //       ),
-  //     ),
-  //   );
-  // }
+  Widget _cardGroup(
+      TimeSeriesModel value, double leftPadding, double rightPadding) {
+    return SliverPadding(
+      padding: EdgeInsets.only(left: leftPadding, right: rightPadding),
+      sliver: SliverGrid.count(
+          crossAxisCount: 2,
+          childAspectRatio: 1,
+          mainAxisSpacing: 15,
+          crossAxisSpacing: 18,
+          children: <Widget>[
+            Hero(
+              tag: 'confirmed-card-tag',
+              child: CountCard(
+                onTap: () =>
+                    Navigator.of(context).pushNamed(ConfirmedScreen.ROUTE_NAME),
+                title: 'Confirmed',
+                titleColor: Colors.red,
+                directionIcon: Icons.arrow_upward,
+                mainCount: value.casesStateWise[0].confirmed,
+                subCount: value.casesStateWise[0].deltaConfirmed,
+                spots: List.generate(
+                    33,
+                    (index) => Spot(
+                        x: index.toDouble(),
+                        y: value.casesTimeSeries
+                            .sublist(
+                              value.casesTimeSeries.length - 33,
+                            )[index]
+                            .dailyConfirmed
+                            .toDouble())),
+                colors: [
+                  ColorTween(begin: Colors.red, end: Colors.redAccent)
+                      .lerp(0.2),
+                  ColorTween(begin: Colors.red, end: Colors.redAccent)
+                      .lerp(0.2),
+                ],
+              ),
+            ),
+            Hero(
+              tag: 'active-card-tag',
+              child: CountCard(
+                onTap: () =>
+                    Navigator.of(context).pushNamed(ActiveScreen.ROUTE_NAME),
+                title: 'Active',
+                titleColor: Colors.blue,
+                mainCount: value.casesStateWise[0].active,
+                disableChart: true,
+              ),
+            ),
+            Hero(
+              tag: 'recovered-card-tag',
+              child: CountCard(
+                title: 'Recovered',
+                onTap: () =>
+                    Navigator.of(context).pushNamed(RecoveredScreen.ROUTE_NAME),
+                titleColor: Colors.green,
+                directionIcon: Icons.arrow_upward,
+                mainCount: value.casesStateWise[0].recovered,
+                subCount: value.casesStateWise[0].deltaRecovered,
+                spots: List.generate(33, (index) {
+                  return Spot(
+                      x: index.toDouble(),
+                      y: value.casesTimeSeries
+                          .sublist(value.casesTimeSeries.length - 33)[index]
+                          .dailyRecovered
+                          .toDouble());
+                }),
+                colors: [
+                  ColorTween(begin: Colors.green, end: Colors.greenAccent)
+                      .lerp(0.2),
+                  ColorTween(begin: Colors.green, end: Colors.greenAccent)
+                      .lerp(0.2),
+                ],
+              ),
+            ),
+            Hero(
+              tag: 'deceased-card-tag',
+              child: CountCard(
+                title: 'Deceased',
+                onTap: () =>
+                    Navigator.of(context).pushNamed(DeceasedScreen.ROUTE_NAME),
+                titleColor: Colors.black45,
+                directionIcon: Icons.arrow_upward,
+                mainCount: value.casesStateWise[0].deaths,
+                subCount: value.casesStateWise[0].deltaDeaths,
+                spots: List.generate(33, (index) {
+                  return Spot(
+                      x: index.toDouble(),
+                      y: value.casesTimeSeries
+                          .sublist(value.casesTimeSeries.length - 33)[index]
+                          .dailyDeceased
+                          .toDouble());
+                }),
+                colors: [
+                  ColorTween(begin: Colors.black45, end: Colors.black87)
+                      .lerp(0.2),
+                  ColorTween(begin: Colors.black45, end: Colors.black54)
+                      .lerp(0.2),
+                ],
+              ),
+            ),
+          ]),
+    );
+  }
 
-  // SliverToBoxAdapter _stayHomeStaySafeList() {
-  //   return SliverToBoxAdapter(
-  //       child: StayHomeStaySafeList(
-  //     assetPaths: stayHomeSafeConstants.IMAGE_ASSET_PATHS,
-  //     titles: stayHomeSafeConstants.TITLES,
-  //     pageinfo: stayHomeSafeConstants.INFO,
-  //   ));
-  // }
-
-  // Widget _stateWiseAnimatedList() {
-  //   return Consumer<TimeSeriesModel>(
-  //     builder: (context, snapshot, _) {
-  //       if (snapshot == null)
-  //         return SliverToBoxAdapter(child: LinearProgressIndicator());
-  //       return LiveSliverList(
-  //           showItemInterval: Duration(milliseconds: 10),
-  //           showItemDuration: Duration(milliseconds: 500),
-  //           reAnimateOnVisibility: false,
-  //           itemCount: snapshot.casesStateWise.length,
-  //           itemBuilder: (cxt, index, animaton) {
-  //             if (index == 0) return Container();
-  //             String count;
-  //             switch (dropdownValue) {
-  //               case 'Confirmed':
-  //                 count =
-  //                     '${snapshot.casesStateWise[index].confirmed.toString()} [+${snapshot.casesStateWise[index].deltaConfirmed.toString()} ]';
-  //                 break;
-  //               case 'Active':
-  //                 count = '${snapshot.casesStateWise[index].active.toString()}';
-  //                 break;
-  //               case 'Recovered':
-  //                 count =
-  //                     '${snapshot.casesStateWise[index].recovered.toString()} [+${snapshot.casesStateWise[index].deltaRecovered.toString()} ]';
-  //                 break;
-  //               case 'Deceased':
-  //                 count =
-  //                     '${snapshot.casesStateWise[index].deaths.toString()} [+${snapshot.casesStateWise[index].deltaDeaths.toString()} ]';
-  //                 break;
-  //               default:
-  //                 count =
-  //                     '${snapshot.casesStateWise[index].confirmed.toString()} [+${snapshot.casesStateWise[index].deltaConfirmed.toString()} ]';
-  //             }
-  //             return FadeTransition(
-  //               opacity: animaton,
-  //               child: Card(
-  //                 margin: const EdgeInsets.only(left: 15, right: 15, bottom: 5),
-  //                 child: ListTile(
-  //                   trailing: Text(count),
-  //                   title: Text(snapshot.casesStateWise[index].state),
-  //                   enabled: !(snapshot.casesStateWise[index].confirmed == 0),
-  //                   subtitle: Row(
-  //                     children: <Widget>[
-  //                       Icon(
-  //                         Icons.info_outline,
-  //                         size: 15,
-  //                         color: Colors.white30,
-  //                       ),
-  //                       Text(
-  //                         'Tap for More info',
-  //                         style: Theme.of(context)
-  //                             .primaryTextTheme
-  //                             .subtitle2
-  //                             .copyWith(fontSize: 10, color: Colors.white30),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                   onTap: () {
-  //                     //analytics
-  //                     _appAnalytics.logStateWiseSelectionEvent(
-  //                         snapshot.casesStateWise[index].state);
-  //                     Navigator.pushNamed(context, StateDetailsScreen.ROUTENAME,
-  //                         arguments: [
-  //                           null,
-  //                           snapshot.casesStateWise[index].state,
-  //                           index
-  //                         ]);
-  //                   },
-  //                 ),
-  //               ),
-  //             );
-  //           },
-  //           controller: _scrollController);
-  //     },
-  //   );
-  // }
   String _updatedAgo(String str) {
     if (str == null) return 'recently';
     String day = str.substring(0, 2);
@@ -316,64 +279,5 @@ class _MyHomePageState extends State<MyHomePage>
       return 'recently';
     }
     return formatedDate;
-  }
-}
-
-class StateList extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<TimeSeriesModel>(builder: (context, snapshot, _) {
-      if (snapshot == null)
-        return SliverToBoxAdapter(child: LinearProgressIndicator());
-      return SliverPadding(
-        padding:
-            const EdgeInsets.only(left: 20, right: 20, top: 25, bottom: 25),
-        sliver: SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (cxt, index) {
-              if (index == 0) return Container();
-              return Card(
-                child: Container(
-                  child: ListTile(
-                    trailing:
-                        Text('${snapshot.casesStateWise[index].confirmed}'),
-                    title: Text(snapshot.casesStateWise[index].state),
-                    enabled: !(snapshot.casesStateWise[index].confirmed == 0),
-                    subtitle: Row(
-                      children: <Widget>[
-                        Icon(
-                          Icons.info_outline,
-                          size: 15,
-                          color: Colors.black,
-                        ),
-                        Text(
-                          'Tap for More info',
-                          style: Theme.of(context)
-                              .primaryTextTheme
-                              .subtitle2
-                              .copyWith(fontSize: 10, color: Colors.black),
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      //analytics
-                      // _appAnalytics.logStateWiseSelectionEvent(
-                      //     snapshot.casesStateWise[index].state);
-                      Navigator.pushNamed(context, StateDetailsScreen.ROUTENAME,
-                          arguments: [
-                            null,
-                            snapshot.casesStateWise[index].state,
-                            index
-                          ]);
-                    },
-                  ),
-                ),
-              );
-            },
-            childCount: snapshot.casesStateWise.length,
-          ),
-        ),
-      );
-    });
   }
 }
