@@ -61,7 +61,7 @@ class DeceasedScreen extends StatelessWidget {
                   ),
                 ),
                 trailing: Text(
-                  '${value.casesStateWise[index].confirmed.toString()} [+ ${value.casesStateWise[index].deltaConfirmed.toString()}]',
+                  '${value.casesStateWise[index].deaths.toString()} [+ ${value.casesStateWise[index].deltaDeaths.toString()}]',
                   style: TextStyle(fontSize: 18, color: Colors.black45),
                 ),
                 onTap: () {
