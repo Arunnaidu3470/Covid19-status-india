@@ -1,4 +1,4 @@
-const Map STATES = {
+const Map<String, String> STATES = {
   'AP': 'Andhra Pradesh',
   'AR': 'Arunachal Pradesh',
   'AS': 'Assam',

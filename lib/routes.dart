@@ -1,11 +1,8 @@
-import 'package:app/screen/active_screen.dart';
-import 'package:app/screen/confirmed_screen.dart';
-import 'package:app/screen/deceased_screen.dart';
-import 'package:app/screen/home_page_screen.dart';
-import 'package:app/screen/recovered_screen.dart';
-import 'package:app/screen/state_details_screen.dart';
-import 'package:app/screen/stay_home_stay_safe_details_screen.dart';
 import 'package:flutter/material.dart';
+
+import 'screen/home_page_screen.dart';
+import 'screen/state_details_screen.dart';
+import 'screen/stay_home_stay_safe_details_screen.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
   // Here we'll handle all the routing
@@ -32,14 +29,14 @@ Route<dynamic> generateRoute(RouteSettings settings) {
                 markdownBodyData: data[1],
                 assetPath: data[2],
               ));
-    case ActiveScreen.ROUTE_NAME:
-      return MaterialPageRoute(builder: (cxt) => ActiveScreen());
-    case ConfirmedScreen.ROUTE_NAME:
-      return MaterialPageRoute(builder: (cxt) => ConfirmedScreen());
-    case RecoveredScreen.ROUTE_NAME:
-      return MaterialPageRoute(builder: (cxt) => RecoveredScreen());
-    case DeceasedScreen.ROUTE_NAME:
-      return MaterialPageRoute(builder: (cxt) => DeceasedScreen());
+    // case ActiveScreen.ROUTE_NAME:
+    //   return MaterialPageRoute(builder: (cxt) => ActiveScreen());
+    // case ConfirmedScreen.ROUTE_NAME:
+    //   return MaterialPageRoute(builder: (cxt) => ConfirmedScreen());
+    // case RecoveredScreen.ROUTE_NAME:
+    //   return MaterialPageRoute(builder: (cxt) => RecoveredScreen());
+    // case DeceasedScreen.ROUTE_NAME:
+    //   return MaterialPageRoute(builder: (cxt) => DeceasedScreen());
     default:
       return MaterialPageRoute(builder: (cxt) => MyHomePage());
   }

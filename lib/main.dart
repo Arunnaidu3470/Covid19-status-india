@@ -1,10 +1,12 @@
-import 'package:app/api/covid19.dart';
+import 'package:app/blocs/dialy_count/total_count_bloc.dart';
+import 'package:app/blocs/statewise_data/statewise_count_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'screen/home_page_screen.dart';
+import 'analytics/analytics.dart';
+import 'api/covid19.dart';
 import 'routes.dart' as routes;
-import 'package:app/analytics/analytics.dart';
+import 'screen/home_page_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -16,16 +18,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _analytics.appOpend();
-    return MultiProvider(
+    return MultiBlocProvider(
       providers: [
-        FutureProvider<TimeSeriesModel>(
-          lazy: false,
-          create: (cxt) => api.seriesData.allSeriesData(),
-        ),
-        FutureProvider<List<StateDistrictModel>>(
-          lazy: false,
-          create: (cxt) => api.stateDistrict.getData(),
-        ),
+        BlocProvider(lazy: false, create: (context) => TotalCountBloc()),
+        BlocProvider(lazy: false, create: (context) => StatewiseCountBloc())
       ],
       child: MaterialApp(
         // initialRoute: MyHomePage.ROUTENAME,
@@ -38,6 +34,23 @@ class MyApp extends StatelessWidget {
           backgroundColor: Color.fromRGBO(33, 43, 70, 1),
           appBarTheme: AppBarTheme(
             color: Color.fromRGBO(33, 43, 70, 1),
+          ),
+          primaryTextTheme: TextTheme(
+            headline4: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+            headline5: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+            bodyText1: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+            ),
           ),
           primaryColor: Color.fromRGBO(33, 43, 70, 1),
           platform: TargetPlatform.android,

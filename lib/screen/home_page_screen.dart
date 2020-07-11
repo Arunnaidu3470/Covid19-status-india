@@ -1,16 +1,16 @@
-import 'package:app/constants/stay_home_stay_safe_constants.dart';
-import 'package:app/screen/active_screen.dart';
-import 'package:app/screen/confirmed_screen.dart';
-import 'package:app/screen/deceased_screen.dart';
-import 'package:app/screen/recovered_screen.dart';
-import 'package:app/widgets/count_card.dart';
-import 'package:app/widgets/stay_home_stay_safe_list.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-import '../api/covid19.dart';
-import '../analytics/analytics.dart';
+import '../blocs/dialy_count/total_count_bloc.dart';
+import '../blocs/dialy_count/total_count_events.dart';
+import '../blocs/dialy_count/total_count_state.dart';
+import '../blocs/statewise_data/statewise_count_bloc.dart';
+import '../blocs/statewise_data/statewise_count_events.dart';
+import '../blocs/statewise_data/statewise_count_states.dart';
+import '../widgets/color_card.dart';
+import '../widgets/state_card.dart';
+import '../widgets/state_handler_widget.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title = 'Covid19 India'}) : super(key: key);
@@ -23,261 +23,313 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
-  final Covid19Api api = Covid19Api();
-  final AppAnalytics _appAnalytics = AppAnalytics();
   final ScrollController _scrollController = ScrollController();
+  AnimationController _animationController;
   String dropdownValue = 'Confirmed';
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 500),
+    );
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) => loadData());
+  }
+
+  void loadData() async {
+    BlocProvider.of<TotalCountBloc>(context).add(TotalCountFetchEvent());
+    BlocProvider.of<StatewiseCountBloc>(context).add(StatewiseFetchEvent());
+  }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        extendBodyBehindAppBar: true,
-        body: SafeArea(
-          top: false,
-          child: Container(
-            child: Stack(
-              children: <Widget>[
-                Positioned(
-                    child: Container(
-                  height: 300,
-                  color: Color.fromRGBO(33, 43, 70, 1),
-                )),
-                CustomScrollView(
-                  physics: BouncingScrollPhysics(),
-                  slivers: <Widget>[
-                    SliverAppBar(
-                      backgroundColor: Colors.transparent,
-                      expandedHeight: 200,
-                      stretch: true,
-                      flexibleSpace: _flexibleSpaceBar(),
-                    ),
-                    Consumer<TimeSeriesModel>(builder: (cxt, value, _) {
-                      if (value == null)
-                        return SliverToBoxAdapter(
-                            child: Center(child: CircularProgressIndicator()));
+      backgroundColor: Color.fromRGBO(71, 62, 151, 1),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.refresh),
+        onPressed: () {
+          BlocProvider.of<TotalCountBloc>(context).add(TotalCountFetchEvent());
+          BlocProvider.of<StatewiseCountBloc>(context)
+              .add(StatewiseFetchEvent());
+        },
+      ),
+      body: Stack(
+        children: [
+          Header(),
+          TweenAnimationBuilder(
+            tween: Tween<Offset>(begin: Offset(0, 400), end: Offset(0, 0)),
+            duration: Duration(milliseconds: 500),
+            curve: Curves.fastOutSlowIn,
+            builder: (context, offset, child) {
+              return Transform.translate(
+                offset: offset,
+                child: DraggableScrollableSheet(
+                  minChildSize: 0.4,
+                  initialChildSize: 0.4,
+                  maxChildSize: 1,
+                  builder: (_, controller) {
+                    return CustomSheet(controller);
+                  },
+                ),
+              );
+            },
+          )
+        ],
+      ),
+    );
+  }
+}
 
-                      return SliverLayoutBuilder(
-                        builder: (cxt, size) {
-                          double leftPadding;
-                          double rightPadding;
-
-                          if (size.crossAxisExtent < 650) {
-                            leftPadding = 20;
-                            rightPadding = 20;
-                          } else if (size.crossAxisExtent > 650 &&
-                              size.crossAxisExtent < 800) {
-                            leftPadding = 50;
-                            rightPadding = 150;
-                          } else if (size.crossAxisExtent > 800 &&
-                              size.crossAxisExtent < 1001) {
-                            leftPadding = 50;
-                            rightPadding = 350;
-                          } else if (size.crossAxisExtent > 1000 &&
-                              size.crossAxisExtent < 1500) {
-                            leftPadding = 50;
-                            rightPadding = 600;
-                          } else if (size.crossAxisExtent > 1500 &&
-                              size.crossAxisExtent < 1800) {
-                            leftPadding = 50;
-                            rightPadding = 900;
-                          } else {
-                            leftPadding = 50;
-                            rightPadding = 900;
-                          }
-
-                          return _cardGroup(value, leftPadding, rightPadding);
-                        },
-                      );
-                    }),
-                    SliverToBoxAdapter(child: SizedBox(height: 20)),
-                    SliverToBoxAdapter(
-                        child: Container(
-                      height: 200,
-                      child: StayHomeStaySafeList(
-                        assetPaths: IMAGE_ASSET_PATHS,
-                        titles: TITLES,
-                        pageinfo: [
-                          SymptomsInfo.BODYTEXT,
-                          PreventionInfo.BODYTEXT,
-                          TreatmentInfo.BODYTEXT,
+class Header extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+          color: const Color.fromRGBO(71, 62, 151, 1),
+          borderRadius: const BorderRadius.only(
+            bottomLeft: const Radius.circular(20),
+            bottomRight: const Radius.circular(20),
+          )),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      height: 500,
+      child: Column(
+        children: [
+          SizedBox(height: 70),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Statistics',
+                style: Theme.of(context)
+                    .primaryTextTheme
+                    .headline4
+                    .copyWith(fontSize: 25),
+              ),
+              OutlineButton.icon(
+                  onPressed: () {},
+                  highlightedBorderColor: Colors.white70,
+                  // highlightColor: Colors.white70,
+                  borderSide: BorderSide(
+                    color: Colors.white38,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  icon: Icon(
+                    Icons.history,
+                    size: 20,
+                    color: Colors.white70,
+                  ),
+                  label: Text(
+                    'Previous',
+                    style:
+                        Theme.of(context).primaryTextTheme.bodyText1.copyWith(
+                              color: Colors.white70,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w400,
+                            ),
+                  ))
+            ],
+          ),
+          SizedBox(height: 30),
+          BlocBuilder<TotalCountBloc, TotalCountState>(
+              bloc: BlocProvider.of<TotalCountBloc>(context),
+              builder: (_, state) {
+                return StateHandlerWidget(
+                  currentState: state,
+                  initialState: (cxt) {
+                    return Container(
+                      height: 300,
+                      width: 100,
+                      child: Center(
+                        child: LinearProgressIndicator(),
+                      ),
+                    );
+                  },
+                  loadingState: (cxt) {
+                    return Container(
+                      height: 300,
+                      width: 100,
+                      child: Center(
+                        child: LinearProgressIndicator(),
+                      ),
+                    );
+                  },
+                  loadedState: (cxt) {
+                    return TweenAnimationBuilder(
+                      tween: Tween<double>(begin: 0, end: 1),
+                      duration: Duration(milliseconds: 500),
+                      builder: (context, value, child) {
+                        return Opacity(opacity: value, child: child);
+                      },
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              ColorCard(
+                                backgroundColor:
+                                    Color.fromRGBO(255, 178, 90, 1),
+                                title: 'Affected',
+                                count: state.confirmed,
+                                subCount: state.dailyConfirmed,
+                              ),
+                              ColorCard(
+                                backgroundColor: Color.fromRGBO(255, 89, 89, 1),
+                                title: 'Death',
+                                count: state.deaths,
+                                subCount: state.dailyDeaths,
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              ColorCard(
+                                backgroundColor:
+                                    Color.fromRGBO(76, 217, 123, 1),
+                                title: 'Recovered',
+                                count: state.recovered,
+                                subCount: state.dailyRecovered,
+                              ),
+                              ColorCard(
+                                backgroundColor:
+                                    Color.fromRGBO(75, 181, 255, 1),
+                                title: 'Active',
+                                count: state.active,
+                              ),
+                            ],
+                          ),
+                          Text(
+                            formatTime(state.updatedOn),
+                            style: Theme.of(context).primaryTextTheme.bodyText1,
+                          ),
                         ],
                       ),
-                    )),
-                    SliverToBoxAdapter(child: SizedBox(height: 20)),
-                    // someother details
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ));
-  }
-
-  FlexibleSpaceBar _flexibleSpaceBar() {
-    return FlexibleSpaceBar(
-        background: Align(
-      alignment: Alignment.centerLeft,
-      child: Consumer<TimeSeriesModel>(builder: (cxt, value, _) {
-        if (value == null) return Container();
-        return Container(
-          margin: const EdgeInsets.only(left: 25),
-          child: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: 'Covid-19 Tracker\n',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyText1
-                      .copyWith(color: Colors.white),
-                ),
-                TextSpan(
-                  text: 'India\n',
-                  style: Theme.of(context).textTheme.headline1.copyWith(
-                      color: Colors.white,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold),
-                ),
-                TextSpan(
-                  text:
-                      'Last updated ${_updatedAgo(value.casesStateWise[0].lastUpdatedTime)}',
-                  style: Theme.of(context).textTheme.headline1.copyWith(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w400),
-                ),
-              ],
-            ),
-          ),
-        );
-      }),
-    ));
-  }
-
-  Widget _cardGroup(
-      TimeSeriesModel value, double leftPadding, double rightPadding) {
-    return SliverPadding(
-      padding: EdgeInsets.only(left: leftPadding, right: rightPadding),
-      sliver: SliverGrid.count(
-          crossAxisCount: 2,
-          childAspectRatio: 1,
-          mainAxisSpacing: 15,
-          crossAxisSpacing: 18,
-          children: <Widget>[
-            Hero(
-              tag: 'confirmed-card-tag',
-              child: CountCard(
-                onTap: () =>
-                    Navigator.of(context).pushNamed(ConfirmedScreen.ROUTE_NAME),
-                title: 'Confirmed',
-                titleColor: Colors.red,
-                directionIcon: Icons.arrow_upward,
-                mainCount: value.casesStateWise[0].confirmed,
-                subCount: value.casesStateWise[0].deltaConfirmed,
-                spots: List.generate(
-                    33,
-                    (index) => Spot(
-                        x: index.toDouble(),
-                        y: value.casesTimeSeries
-                            .sublist(
-                              value.casesTimeSeries.length - 33,
-                            )[index]
-                            .dailyConfirmed
-                            .toDouble())),
-                colors: [
-                  ColorTween(begin: Colors.red, end: Colors.redAccent)
-                      .lerp(0.2),
-                  ColorTween(begin: Colors.red, end: Colors.redAccent)
-                      .lerp(0.2),
-                ],
-              ),
-            ),
-            Hero(
-              tag: 'active-card-tag',
-              child: CountCard(
-                onTap: () =>
-                    Navigator.of(context).pushNamed(ActiveScreen.ROUTE_NAME),
-                title: 'Active',
-                titleColor: Colors.blue,
-                mainCount: value.casesStateWise[0].active,
-                disableChart: true,
-              ),
-            ),
-            Hero(
-              tag: 'recovered-card-tag',
-              child: CountCard(
-                title: 'Recovered',
-                onTap: () =>
-                    Navigator.of(context).pushNamed(RecoveredScreen.ROUTE_NAME),
-                titleColor: Colors.green,
-                directionIcon: Icons.arrow_upward,
-                mainCount: value.casesStateWise[0].recovered,
-                subCount: value.casesStateWise[0].deltaRecovered,
-                spots: List.generate(33, (index) {
-                  return Spot(
-                      x: index.toDouble(),
-                      y: value.casesTimeSeries
-                          .sublist(value.casesTimeSeries.length - 33)[index]
-                          .dailyRecovered
-                          .toDouble());
-                }),
-                colors: [
-                  ColorTween(begin: Colors.green, end: Colors.greenAccent)
-                      .lerp(0.2),
-                  ColorTween(begin: Colors.green, end: Colors.greenAccent)
-                      .lerp(0.2),
-                ],
-              ),
-            ),
-            Hero(
-              tag: 'deceased-card-tag',
-              child: CountCard(
-                title: 'Deceased',
-                onTap: () =>
-                    Navigator.of(context).pushNamed(DeceasedScreen.ROUTE_NAME),
-                titleColor: Colors.black45,
-                directionIcon: Icons.arrow_upward,
-                mainCount: value.casesStateWise[0].deaths,
-                subCount: value.casesStateWise[0].deltaDeaths,
-                spots: List.generate(33, (index) {
-                  return Spot(
-                      x: index.toDouble(),
-                      y: value.casesTimeSeries
-                          .sublist(value.casesTimeSeries.length - 33)[index]
-                          .dailyDeceased
-                          .toDouble());
-                }),
-                colors: [
-                  ColorTween(begin: Colors.black45, end: Colors.black87)
-                      .lerp(0.2),
-                  ColorTween(begin: Colors.black45, end: Colors.black54)
-                      .lerp(0.2),
-                ],
-              ),
-            ),
-          ]),
+                    );
+                  },
+                  errorState: (cxt) {
+                    return Text('Error State');
+                  },
+                );
+              }),
+        ],
+      ),
     );
   }
 
-  String _updatedAgo(String str) {
-    if (str == null) return 'recently';
-    String day = str.substring(0, 2);
-    String month = str.substring(3, 5);
-    String year = str.substring(6, 10);
-    String time = str.substring(11, 19);
-    String formatedDate;
-    try {
-      formatedDate = timeago.format(DateTime.parse('$year-$month-$day $time'));
-    } catch (e) {
-      //possible format exception
-      return 'recently';
-    }
-    return formatedDate;
+  String formatTime(DateTime date) {
+    return timeago.format(date);
+  }
+}
+
+class CustomSheet extends StatelessWidget {
+  final ScrollController _controller;
+
+  const CustomSheet(this._controller, {Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: const Radius.circular(20),
+            topRight: const Radius.circular(20),
+          )),
+      child: Stack(
+        children: [
+          Positioned(
+            top: 10,
+            right: (MediaQuery.of(context).size.width / 2) - 20,
+            left: (MediaQuery.of(context).size.width / 2) - 20,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(40),
+                color: Color.fromRGBO(71, 62, 151, 0.5),
+              ),
+              width: 100,
+              height: 5,
+            ),
+          ),
+          Positioned(
+            left: 20,
+            top: 30,
+            right: 10,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Text(
+                  'Top 8 Affected States',
+                  style: Theme.of(context)
+                      .primaryTextTheme
+                      .headline4
+                      .copyWith(color: Colors.black54),
+                ),
+                OutlineButton(
+                  child: Text('See all'),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  borderSide: BorderSide(color: Color.fromRGBO(71, 62, 151, 1)),
+                  highlightedBorderColor: Color.fromRGBO(71, 62, 151, 1),
+                  highlightElevation: 0,
+                  textColor: Color.fromRGBO(71, 62, 151, 1),
+                  onPressed: () {
+                    // TODO: show a new screen with all states data
+                  },
+                )
+              ],
+            ),
+          ),
+          Positioned.fill(
+            top: 80,
+            child: ListView(
+              controller: _controller,
+              children: [
+                BlocBuilder<StatewiseCountBloc, StatewiseCountState>(
+                    bloc: BlocProvider.of<StatewiseCountBloc>(context),
+                    builder: (_, state) {
+                      return StateHandlerWidget(
+                        currentState: state,
+                        initialState: (_) => Container(),
+                        loadingState: (_) => Container(),
+                        loadedState: (_) {
+                          return StateCountList(
+                            states: state.states
+                                .sublist(1, 9)
+                                .map((e) => StateCountCard(
+                                      stateName: e.state,
+                                      count: e.confirmed,
+                                      confirmedCases: state.count[e.stateCode]
+                                          ['confirmed'],
+                                    ))
+                                .toList(),
+                          );
+                        },
+                        errorState: (_) => Container(),
+                      );
+                    })
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

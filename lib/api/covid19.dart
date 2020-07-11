@@ -9,21 +9,24 @@ part 'collection/state_district.dart';
 part 'models/state_district_model.dart';
 part 'collection/deaths_recoveries.dart';
 part 'models/deaths_recoveries_model.dart';
+part 'collection/daily_state_changes.dart';
 
 class Covid19Api {
   final String _scheme = 'https://';
   final String _hostUrl = 'api.covid19india.org';
-  // String _version = '';
 
   SeriesData _seriesData;
   StateDistrictData _stateDistrict;
+  DailyStateChanges _dailyStateChanges;
 
   SeriesData get seriesData => _seriesData;
   StateDistrictData get stateDistrict => _stateDistrict;
+  DailyStateChanges get dailyStateChanges => _dailyStateChanges;
 
   Covid19Api() {
     _seriesData = SeriesData(this);
     _stateDistrict = StateDistrictData(this);
+    _dailyStateChanges = DailyStateChanges(this);
   }
 
   Future<dynamic> _query(String path) async {

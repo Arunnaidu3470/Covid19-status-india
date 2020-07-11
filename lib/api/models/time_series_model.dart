@@ -25,14 +25,27 @@ class CasesTimeSeries {
   final int totalDeceased;
   final int totalRecovered;
 
-  CasesTimeSeries(
-      {this.dailyConfirmed,
-      this.dailyDeceased,
-      this.dailyRecovered,
-      this.date,
-      this.totalConfirmed,
-      this.totalDeceased,
-      this.totalRecovered});
+  CasesTimeSeries({
+    this.dailyConfirmed,
+    this.dailyDeceased,
+    this.dailyRecovered,
+    this.date,
+    this.totalConfirmed,
+    this.totalDeceased,
+    this.totalRecovered,
+  });
+
+  factory CasesTimeSeries.zero() {
+    return CasesTimeSeries(
+      dailyConfirmed: 0,
+      dailyDeceased: 0,
+      dailyRecovered: 0,
+      date: '',
+      totalConfirmed: 0,
+      totalDeceased: 0,
+      totalRecovered: 0,
+    );
+  }
 
   //Generate a List of CasesTimeSeries from given data
   static List<CasesTimeSeries> fromData(List data) {
@@ -91,6 +104,21 @@ class CasesStateWise {
     this.state,
     this.stateCode,
   });
+
+  factory CasesStateWise.zero() {
+    return CasesStateWise(
+      active: 0,
+      confirmed: 0,
+      deaths: 0,
+      deltaConfirmed: 0,
+      deltaDeaths: 0,
+      deltaRecovered: 0,
+      lastUpdatedTime: '',
+      recovered: 0,
+      state: '',
+      stateCode: '',
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
