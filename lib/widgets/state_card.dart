@@ -31,14 +31,22 @@ class StateCountList extends StatelessWidget {
 
 class StateCountCard extends StatelessWidget {
   final String stateName;
-  final int count;
-  final List<Map<String, String>> confirmedCases;
+  final int totalAffected;
+  final int totalRecovered;
+  final int totalDeceased;
+  final List<Map<String, String>> affectedCases;
+  final List<Map<String, String>> recoveredCases;
+  final List<Map<String, String>> deceasedCases;
 
   const StateCountCard({
     Key key,
     @required this.stateName,
-    @required this.count,
-    this.confirmedCases,
+    @required this.totalAffected,
+    this.affectedCases,
+    this.recoveredCases,
+    this.totalRecovered,
+    this.deceasedCases,
+    this.totalDeceased,
   }) : super(key: key);
 
   @override
@@ -47,6 +55,7 @@ class StateCountCard extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.withOpacity(0.5)),
         borderRadius: BorderRadius.circular(20),
+        // color: Color.fromRGBO(71, 62, 151, 0.1),
       ),
       height: 200,
       margin: const EdgeInsets.only(left: 10, right: 10),
@@ -54,42 +63,102 @@ class StateCountCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Text(
+            stateName ?? '',
+            style: Theme.of(context)
+                .primaryTextTheme
+                .headline5
+                .copyWith(color: Colors.black87),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                stateName ?? '',
-                style: Theme.of(context)
-                    .primaryTextTheme
-                    .bodyText1
-                    .copyWith(color: Colors.red),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Affected',
+                    style: Theme.of(context)
+                        .primaryTextTheme
+                        .bodyText1
+                        .copyWith(color: const Color.fromRGBO(255, 178, 90, 1)),
+                  ),
+                  Text(
+                    formatNumber(totalAffected),
+                    style: Theme.of(context)
+                        .primaryTextTheme
+                        .bodyText1
+                        .copyWith(color: const Color.fromRGBO(255, 178, 90, 1)),
+                  ),
+                  Text(
+                    'Recovered',
+                    style: Theme.of(context)
+                        .primaryTextTheme
+                        .bodyText1
+                        .copyWith(color: const Color.fromRGBO(76, 217, 123, 1)),
+                  ),
+                  Text(
+                    formatNumber(totalRecovered),
+                    style: Theme.of(context)
+                        .primaryTextTheme
+                        .bodyText1
+                        .copyWith(color: const Color.fromRGBO(76, 217, 123, 1)),
+                  ),
+                  Text(
+                    'Deaths',
+                    style: Theme.of(context)
+                        .primaryTextTheme
+                        .bodyText1
+                        .copyWith(color: const Color.fromRGBO(255, 89, 89, 1)),
+                  ),
+                  Text(
+                    formatNumber(totalDeceased),
+                    style: Theme.of(context)
+                        .primaryTextTheme
+                        .bodyText1
+                        .copyWith(color: const Color.fromRGBO(255, 89, 89, 1)),
+                  ),
+                ],
               ),
-              Text(
-                formatNumber(count),
-                style: Theme.of(context)
-                    .primaryTextTheme
-                    .bodyText1
-                    .copyWith(color: Colors.red),
+              Container(
+                height: 100,
+                width: 200,
+                child: Chart(
+                  affectedSpots: List.generate(30, (index) {
+                    return FlSpot(
+                      index.toDouble(),
+                      double.tryParse(
+                        affectedCases[(affectedCases.length - 30) + index]
+                            ['count'],
+                      ),
+                    );
+                  }),
+                  recoveredSpots: List.generate(30, (index) {
+                    return FlSpot(
+                      index.toDouble(),
+                      double.tryParse(
+                        recoveredCases[(recoveredCases.length - 30) + index]
+                            ['count'],
+                      ),
+                    );
+                  }),
+                  deceasedSpots: List.generate(30, (index) {
+                    return FlSpot(
+                      index.toDouble(),
+                      double.tryParse(
+                        deceasedCases[(deceasedCases.length - 30) + index]
+                            ['count'],
+                      ),
+                    );
+                  }),
+                ),
               ),
             ],
-          ),
-          Container(
-            height: 100,
-            // width: 200,
-            child: Chart(
-              spots: List.generate(30, (index) {
-                return FlSpot(
-                  index.toDouble(),
-                  double.tryParse(
-                      confirmedCases[confirmedCases.length - index - 1]
-                          ['count']),
-                );
-              }),
-            ),
           ),
         ],
       ),
@@ -111,15 +180,21 @@ class StateCountCard extends StatelessWidget {
 }
 
 class Chart extends StatelessWidget {
-  final List<FlSpot> spots;
-
-  const Chart({Key key, this.spots}) : super(key: key);
+  final List<FlSpot> affectedSpots;
+  final List<FlSpot> recoveredSpots;
+  final List<FlSpot> deceasedSpots;
+  const Chart({
+    Key key,
+    this.affectedSpots,
+    this.recoveredSpots,
+    this.deceasedSpots,
+  }) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
         Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(5),
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.all(
               Radius.circular(18),
@@ -130,24 +205,60 @@ class Chart extends StatelessWidget {
             LineChartData(
               minX: 0,
               maxX: maxX(),
-              minY: maxY(),
-              maxY: 6,
+              minY: 0,
+              maxY: maxY(),
               titlesData: FlTitlesData(show: false),
               gridData: FlGridData(show: false),
               borderData: FlBorderData(show: false),
               axisTitleData: FlAxisTitleData(show: false),
               lineBarsData: [
                 LineChartBarData(
-                  spots: spots,
+                  spots: affectedSpots.reversed.toList(),
                   isCurved: true,
                   colors: [
-                    const Color(0xff23b6e6),
-                    const Color(0xff02d39a),
+                    const Color.fromRGBO(255, 178, 90, 0.8),
+                    const Color.fromRGBO(255, 178, 90, 1),
                   ],
                   barWidth: 3,
                   isStrokeCapRound: true,
                   dotData: FlDotData(
-                    show: false,
+                    show: true,
+                    checkToShowDot: (spot) {
+                      return spot.x == 29;
+                    },
+                  ),
+                ),
+                LineChartBarData(
+                  spots: recoveredSpots.reversed.toList(),
+                  isCurved: true,
+                  colors: [
+                    const Color.fromRGBO(76, 217, 123, 0.8),
+                    const Color.fromRGBO(76, 217, 123, 1),
+                  ],
+                  barWidth: 3,
+                  isStrokeCapRound: true,
+                  dotData: FlDotData(
+                    show: true,
+                    checkToShowDot: (spot) {
+                      return spot.x == 29;
+                    },
+                  ),
+                ),
+                LineChartBarData(
+                  spots: deceasedSpots.reversed.toList(),
+                  isCurved: true,
+                  colors: [
+                    const Color.fromRGBO(255, 89, 89, 0.8),
+                    const Color.fromRGBO(255, 89, 89, 1),
+                  ],
+                  barWidth: 3,
+                  isStrokeCapRound: true,
+                  dotData: FlDotData(
+                    show: true,
+                    checkToShowDot: (spot) {
+                      // print('(${spot.y}, ${spot.x})');
+                      return spot.x == 29;
+                    },
                   ),
                 ),
               ],
@@ -159,12 +270,19 @@ class Chart extends StatelessWidget {
   }
 
   double maxX() {
-    return spots.length + 10.0;
+    return affectedSpots.length + 5.0;
   }
 
   double maxY() {
-    List<double> list = spots.map<double>((e) => e.y).toList();
-    list.sort();
-    return list.last;
+    recoveredSpots.reversed.toList().forEach((element) {});
+    List<double> list1 = recoveredSpots.map<double>((e) => e.y).toList();
+    List<double> list2 = affectedSpots.map<double>((e) => e.y).toList();
+    List<double> list3 = deceasedSpots.map<double>((e) => e.y).toList();
+    list1.sort();
+    list2.sort();
+    list3.sort();
+    return list1.last > list2.last
+        ? list1.last > list3.last ? list1.last : list3.last
+        : list2.last > list3.last ? list2.last : list3.last;
   }
 }

@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -11,6 +12,7 @@ import '../blocs/statewise_data/statewise_count_states.dart';
 import '../widgets/color_card.dart';
 import '../widgets/state_card.dart';
 import '../widgets/state_handler_widget.dart';
+import 'history_count_screen.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title = 'Covid19 India'}) : super(key: key);
@@ -21,19 +23,13 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage>
-    with SingleTickerProviderStateMixin {
+class _MyHomePageState extends State<MyHomePage> {
   final ScrollController _scrollController = ScrollController();
-  AnimationController _animationController;
   String dropdownValue = 'Confirmed';
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 500),
-    );
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) => loadData());
   }
 
@@ -45,7 +41,6 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   void dispose() {
     _scrollController.dispose();
-    _animationController.dispose();
     super.dispose();
   }
 
@@ -115,9 +110,12 @@ class Header extends StatelessWidget {
                     .copyWith(fontSize: 25),
               ),
               OutlineButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pushNamed(HistoryCountScreen.ROUTE_NAME);
+                  },
                   highlightedBorderColor: Colors.white70,
-                  // highlightColor: Colors.white70,
+                  highlightElevation: 0,
                   borderSide: BorderSide(
                     color: Colors.white38,
                   ),
@@ -180,13 +178,14 @@ class Header extends StatelessWidget {
                             children: [
                               ColorCard(
                                 backgroundColor:
-                                    Color.fromRGBO(255, 178, 90, 1),
+                                    const Color.fromRGBO(255, 178, 90, 1),
                                 title: 'Affected',
                                 count: state.confirmed,
                                 subCount: state.dailyConfirmed,
                               ),
                               ColorCard(
-                                backgroundColor: Color.fromRGBO(255, 89, 89, 1),
+                                backgroundColor:
+                                    const Color.fromRGBO(255, 89, 89, 1),
                                 title: 'Death',
                                 count: state.deaths,
                                 subCount: state.dailyDeaths,
@@ -200,14 +199,14 @@ class Header extends StatelessWidget {
                             children: [
                               ColorCard(
                                 backgroundColor:
-                                    Color.fromRGBO(76, 217, 123, 1),
+                                    const Color.fromRGBO(76, 217, 123, 1),
                                 title: 'Recovered',
                                 count: state.recovered,
                                 subCount: state.dailyRecovered,
                               ),
                               ColorCard(
                                 backgroundColor:
-                                    Color.fromRGBO(75, 181, 255, 1),
+                                    const Color.fromRGBO(75, 181, 255, 1),
                                 title: 'Active',
                                 count: state.active,
                               ),
@@ -265,40 +264,8 @@ class CustomSheet extends StatelessWidget {
               height: 5,
             ),
           ),
-          Positioned(
-            left: 20,
-            top: 30,
-            right: 10,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Text(
-                  'Top 8 Affected States',
-                  style: Theme.of(context)
-                      .primaryTextTheme
-                      .headline4
-                      .copyWith(color: Colors.black54),
-                ),
-                OutlineButton(
-                  child: Text('See all'),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  borderSide: BorderSide(color: Color.fromRGBO(71, 62, 151, 1)),
-                  highlightedBorderColor: Color.fromRGBO(71, 62, 151, 1),
-                  highlightElevation: 0,
-                  textColor: Color.fromRGBO(71, 62, 151, 1),
-                  onPressed: () {
-                    // TODO: show a new screen with all states data
-                  },
-                )
-              ],
-            ),
-          ),
           Positioned.fill(
-            top: 80,
+            top: 20,
             child: ListView(
               controller: _controller,
               children: [
@@ -310,16 +277,60 @@ class CustomSheet extends StatelessWidget {
                         initialState: (_) => Container(),
                         loadingState: (_) => Container(),
                         loadedState: (_) {
-                          return StateCountList(
-                            states: state.states
-                                .sublist(1, 9)
-                                .map((e) => StateCountCard(
-                                      stateName: e.state,
-                                      count: e.confirmed,
-                                      confirmedCases: state.count[e.stateCode]
-                                          ['confirmed'],
-                                    ))
-                                .toList(),
+                          return Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    Text(
+                                      'Top 8 Affected States',
+                                      style: Theme.of(context)
+                                          .primaryTextTheme
+                                          .headline4
+                                          .copyWith(color: Colors.black54),
+                                    ),
+                                    OutlineButton(
+                                      child: Text('See all'),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      borderSide: BorderSide(
+                                          color:
+                                              Color.fromRGBO(71, 62, 151, 1)),
+                                      highlightedBorderColor:
+                                          Color.fromRGBO(71, 62, 151, 1),
+                                      highlightElevation: 0,
+                                      textColor: Color.fromRGBO(71, 62, 151, 1),
+                                      onPressed: () {
+                                        // TODO: show a new screen with all states data
+                                      },
+                                    )
+                                  ],
+                                ),
+                              ),
+                              StateCountList(
+                                states: state.states
+                                    .sublist(1, 9)
+                                    .map((e) => StateCountCard(
+                                          stateName: e.state,
+                                          totalAffected: e.confirmed,
+                                          totalRecovered: e.recovered,
+                                          totalDeceased: e.deaths,
+                                          recoveredCases: state
+                                              .count[e.stateCode]['recovered'],
+                                          affectedCases: state
+                                              .count[e.stateCode]['confirmed'],
+                                          deceasedCases: state
+                                              .count[e.stateCode]['deceased'],
+                                        ))
+                                    .toList(),
+                              ),
+                            ],
                           );
                         },
                         errorState: (_) => Container(),

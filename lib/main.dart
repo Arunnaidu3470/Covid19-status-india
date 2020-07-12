@@ -54,6 +54,11 @@ class MyApp extends StatelessWidget {
           ),
           primaryColor: Color.fromRGBO(33, 43, 70, 1),
           platform: TargetPlatform.android,
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: <TargetPlatform, PageTransitionsBuilder>{
+              TargetPlatform.android: const OpenUpwardsPageTransitionsBuilder(),
+            },
+          ),
         ),
         home: MyHomePage(),
       ),
