@@ -1,14 +1,13 @@
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../blocs/dialy_count/total_count_bloc.dart';
 import '../blocs/dialy_count/total_count_events.dart';
-import '../blocs/dialy_count/total_count_state.dart';
 import '../blocs/statewise_data/statewise_count_bloc.dart';
 import '../blocs/statewise_data/statewise_count_events.dart';
 import '../blocs/statewise_data/statewise_count_states.dart';
+import '../blocs/total_count/total_country_count_bloc.dart';
 import '../widgets/color_card.dart';
 import '../widgets/state_card.dart';
 import '../widgets/state_handler_widget.dart';
@@ -34,7 +33,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void loadData() async {
-    BlocProvider.of<TotalCountBloc>(context).add(TotalCountFetchEvent());
     BlocProvider.of<StatewiseCountBloc>(context).add(StatewiseFetchEvent());
   }
 
@@ -110,127 +108,122 @@ class Header extends StatelessWidget {
                     .copyWith(fontSize: 25),
               ),
               OutlineButton.icon(
-                  onPressed: () {
-                    Navigator.of(context)
-                        .pushNamed(HistoryCountScreen.ROUTE_NAME);
-                  },
-                  highlightedBorderColor: Colors.white70,
-                  highlightElevation: 0,
-                  borderSide: BorderSide(
-                    color: Colors.white38,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  icon: Icon(
-                    Icons.history,
-                    size: 20,
-                    color: Colors.white70,
-                  ),
-                  label: Text(
-                    'Previous',
-                    style:
-                        Theme.of(context).primaryTextTheme.bodyText1.copyWith(
-                              color: Colors.white70,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w400,
-                            ),
-                  ))
+                onPressed: () {
+                  Navigator.of(context)
+                      .pushNamed(HistoricalCountScreen.ROUTE_NAME);
+                },
+                highlightedBorderColor: Colors.white70,
+                highlightElevation: 0,
+                borderSide: BorderSide(
+                  color: Colors.white38,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                icon: Icon(
+                  Icons.history,
+                  size: 20,
+                  color: Colors.white70,
+                ),
+                label: Text(
+                  'Historical',
+                  style: Theme.of(context).primaryTextTheme.bodyText1.copyWith(
+                        color: Colors.white70,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w400,
+                      ),
+                ),
+              )
             ],
           ),
           SizedBox(height: 30),
-          BlocBuilder<TotalCountBloc, TotalCountState>(
-              bloc: BlocProvider.of<TotalCountBloc>(context),
-              builder: (_, state) {
-                return StateHandlerWidget(
-                  currentState: state,
-                  initialState: (cxt) {
-                    return Container(
-                      height: 300,
-                      width: 100,
-                      child: Center(
-                        child: LinearProgressIndicator(),
-                      ),
-                    );
-                  },
-                  loadingState: (cxt) {
-                    return Container(
-                      height: 300,
-                      width: 100,
-                      child: Center(
-                        child: LinearProgressIndicator(),
-                      ),
-                    );
-                  },
-                  loadedState: (cxt) {
-                    return TweenAnimationBuilder(
-                      tween: Tween<double>(begin: 0, end: 1),
-                      duration: Duration(milliseconds: 500),
-                      builder: (context, value, child) {
-                        return Opacity(opacity: value, child: child);
-                      },
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              ColorCard(
-                                backgroundColor:
-                                    const Color.fromRGBO(255, 178, 90, 1),
-                                title: 'Affected',
-                                count: state.confirmed,
-                                subCount: state.dailyConfirmed,
-                              ),
-                              ColorCard(
-                                backgroundColor:
-                                    const Color.fromRGBO(255, 89, 89, 1),
-                                title: 'Death',
-                                count: state.deaths,
-                                subCount: state.dailyDeaths,
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              ColorCard(
-                                backgroundColor:
-                                    const Color.fromRGBO(76, 217, 123, 1),
-                                title: 'Recovered',
-                                count: state.recovered,
-                                subCount: state.dailyRecovered,
-                              ),
-                              ColorCard(
-                                backgroundColor:
-                                    const Color.fromRGBO(75, 181, 255, 1),
-                                title: 'Active',
-                                count: state.active,
-                              ),
-                            ],
-                          ),
-                          Text(
-                            formatTime(state.updatedOn),
-                            style: Theme.of(context).primaryTextTheme.bodyText1,
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                  errorState: (cxt) {
-                    return Text('Error State');
-                  },
-                );
-              }),
+          BlocBuilder<TotalCountryCountBloc, TotalCountryCountState>(
+            builder: (_, state) {
+              switch (state.state) {
+                case TotalCountryCountStates.initial:
+                  return Container(
+                    width: 100,
+                    child: LinearProgressIndicator(),
+                  );
+                case TotalCountryCountStates.fetching:
+                  return Container(
+                    width: 100,
+                    child: LinearProgressIndicator(),
+                  );
+                case TotalCountryCountStates.failure:
+                  return Container(
+                    child: Text(state.errorMessage ?? ''),
+                  );
+                case TotalCountryCountStates.success:
+                  return TweenAnimationBuilder(
+                    tween: Tween<double>(begin: 0, end: 1),
+                    duration: Duration(milliseconds: 500),
+                    builder: (context, value, child) {
+                      return Opacity(opacity: value, child: child);
+                    },
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            ColorCard(
+                              backgroundColor:
+                                  const Color.fromRGBO(255, 178, 90, 1),
+                              title: 'Affected',
+                              count: state.cases,
+                              subCount: state.todayCases,
+                            ),
+                            ColorCard(
+                              backgroundColor:
+                                  const Color.fromRGBO(255, 89, 89, 1),
+                              title: 'Death',
+                              count: state.deaths,
+                              subCount: state.todayDeaths,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            ColorCard(
+                              backgroundColor:
+                                  const Color.fromRGBO(76, 217, 123, 1),
+                              title: 'Recovered',
+                              count: state.recovered,
+                              // subCount: state.to,
+                            ),
+                            ColorCard(
+                              backgroundColor:
+                                  const Color.fromRGBO(75, 181, 255, 1),
+                              title: 'Active',
+                              count:
+                                  state.cases - state.deaths - state.recovered,
+                            ),
+                          ],
+                        ),
+                        Text(
+                          formatTime(state.updated),
+                          style: Theme.of(context).primaryTextTheme.bodyText1,
+                        ),
+                      ],
+                    ),
+                  );
+                default:
+                  return Container();
+              }
+            },
+          ),
         ],
       ),
     );
   }
 
   String formatTime(DateTime date) {
+    if (date == null) return 'Recently';
     return timeago.format(date);
   }
 }

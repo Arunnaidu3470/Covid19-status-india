@@ -7,10 +7,10 @@ Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
     case MyHomePage.ROUTENAME:
       return MaterialPageRoute(builder: (cxt) => MyHomePage());
-    case HistoryCountScreen.ROUTE_NAME:
+    case HistoricalCountScreen.ROUTE_NAME:
       return PageRouteBuilder(
         pageBuilder: (_, animation, secondaryAnimation) {
-          return HistoryCountScreen();
+          return HistoricalCountScreen();
         },
         transitionsBuilder: (_, animation, secondaryAnimation, child) {
           return FadeTransition(

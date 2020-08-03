@@ -1,10 +1,12 @@
-import 'package:app/blocs/dialy_count/total_count_bloc.dart';
-import 'package:app/blocs/statewise_data/statewise_count_bloc.dart';
+import 'package:app/blocs/total_count/total_country_count_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'analytics/analytics.dart';
 import 'api/covid19.dart';
+import 'blocs/dialy_count/total_count_bloc.dart';
+import 'blocs/statewise_data/statewise_count_bloc.dart';
+import 'blocs/timeline/timeline_bloc.dart';
 import 'routes.dart' as routes;
 import 'screen/home_page_screen.dart';
 
@@ -21,7 +23,12 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(lazy: false, create: (context) => TotalCountBloc()),
-        BlocProvider(lazy: false, create: (context) => StatewiseCountBloc())
+        BlocProvider(lazy: false, create: (context) => StatewiseCountBloc()),
+        BlocProvider(lazy: false, create: (context) => TimelineBloc()),
+        BlocProvider(
+            lazy: false,
+            create: (context) =>
+                TotalCountryCountBloc()..add(TotalCountryCountFetchEvent())),
       ],
       child: MaterialApp(
         // initialRoute: MyHomePage.ROUTENAME,
