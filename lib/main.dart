@@ -1,3 +1,4 @@
+import 'package:app/blocs/historical/country_historical_bloc.dart';
 import 'package:app/blocs/total_count/total_country_count_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,13 +23,18 @@ class MyApp extends StatelessWidget {
     _analytics.appOpend();
     return MultiBlocProvider(
       providers: [
-        BlocProvider(lazy: false, create: (context) => TotalCountBloc()),
-        BlocProvider(lazy: false, create: (context) => StatewiseCountBloc()),
-        BlocProvider(lazy: false, create: (context) => TimelineBloc()),
+        BlocProvider(create: (context) => TotalCountBloc()),
+        BlocProvider(create: (context) => StatewiseCountBloc()),
+        BlocProvider(create: (context) => TimelineBloc()),
         BlocProvider(
-            lazy: false,
-            create: (context) =>
-                TotalCountryCountBloc()..add(TotalCountryCountFetchEvent())),
+          lazy: false,
+          create: (context) =>
+              TotalCountryCountBloc()..add(TotalCountryCountFetchEvent()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              CountryHistoricalBloc()..add(CountryHistoricalFetchEvent()),
+        )
       ],
       child: MaterialApp(
         // initialRoute: MyHomePage.ROUTENAME,
@@ -38,10 +44,10 @@ class MyApp extends StatelessWidget {
         onGenerateRoute: routes.generateRoute,
         title: 'COVID19 India',
         theme: ThemeData(
-          backgroundColor: Color.fromRGBO(33, 43, 70, 1),
+          // backgroundColor: Color.fromRGBO(33, 43, 70, 1),
           appBarTheme: AppBarTheme(
-            color: Color.fromRGBO(33, 43, 70, 1),
-          ),
+              // color: Color.fromRGBO(33, 43, 70, 1),
+              ),
           primaryTextTheme: TextTheme(
             headline4: TextStyle(
               color: Colors.white,
@@ -59,7 +65,7 @@ class MyApp extends StatelessWidget {
               fontSize: 15,
             ),
           ),
-          primaryColor: Color.fromRGBO(33, 43, 70, 1),
+          primaryColor: const Color.fromRGBO(71, 62, 151, 1),
           platform: TargetPlatform.android,
           pageTransitionsTheme: const PageTransitionsTheme(
             builders: <TargetPlatform, PageTransitionsBuilder>{
