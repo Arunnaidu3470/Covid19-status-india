@@ -37,15 +37,19 @@ class _HistoricalCountScreenState extends State<HistoricalCountScreen> {
                   return StateHandlerWidget(
                     currentState: state,
                     initialState: (context) {
-                      return Container(
-                        width: 100,
-                        child: LinearProgressIndicator(),
+                      return Center(
+                        child: Container(
+                          width: 100,
+                          child: LinearProgressIndicator(),
+                        ),
                       );
                     },
                     loadingState: (context) {
-                      return Container(
-                        width: 100,
-                        child: LinearProgressIndicator(),
+                      return Center(
+                        child: Container(
+                          width: 100,
+                          child: LinearProgressIndicator(),
+                        ),
                       );
                     },
                     loadedState: (context) {
@@ -74,7 +78,9 @@ class _HistoricalCountScreenState extends State<HistoricalCountScreen> {
                       );
                     },
                     errorState: (context) {
-                      return Container(child: Text(state.failureMessage ?? ''));
+                      return Center(
+                          child: Container(
+                              child: Text(state.failureMessage ?? '')));
                     },
                   );
                 },
