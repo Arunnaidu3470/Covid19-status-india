@@ -32,7 +32,7 @@ class CountryCount {
         recovered
         todayCases
         todayRecovered
-        todayRecovered
+        todayDeaths
       }
     }
   }
