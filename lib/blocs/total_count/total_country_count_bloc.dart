@@ -26,7 +26,6 @@ class TotalCountryCountBloc
     try {
       yield TotalCountryCountState.fetching();
       final result = await _gql.countryCount.getTotalCounts();
-      print(result);
       yield TotalCountryCountState.success(
         updated:
             DateTime.fromMillisecondsSinceEpoch(result['country']['updated']),
